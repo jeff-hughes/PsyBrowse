@@ -1,0 +1,14 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="str-content usr-content">
+        <h2 class="usr-name">{{ user.get_full_name }}</h2>
+        {% if user.userprofile.affiliation %}<p class="usr-affiliation">Affiliation: {{ user.userprofile.affiliation }}</p>{% endif %}
+        <p><a href="{% url 'subscriptions' %}">Subscriptions</a></p>
+    </section>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="str-content art-content">
+        <article class="art-article">
+            <!--<div class="art-ratings">
+                <span class="art-ratingsStar"><img src="img/star.png" title="This article has been peer reviewed" /></span>
+                <span class="art-ratingsMethodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
+                <span class="art-ratingsContribution" title="Contribution to Literature" style="background: #dfd300">2.5</span>
+            </div>-->
+            <div class="art-actions">
+                {% if is_subscribed %}
+                    <a class="button subbtn-unsubscribe" href="{% url 'unsubscribe' %}?type=article&id={{ article.pk }}" data-type="article" data-id="{{ article.pk }}">Unsubscribe</a>
+                {% else %}
+                    <a class="button subbtn-subscribe" href="{% url 'subscribe' %}?type=article&id={{ article.pk }}" data-type="article" data-id="{{ article.pk }}">Subscribe</a>
+                {% endif %}
+            </div>
+            <h2 class="art-title">{{ article.title|escape }}</h2>
+            <div class="art-meta"><span class="art-year" title="{{ article.pub_date|date:"F j, Y" }}">({{ article.pub_date|date:"Y" }})</span>
+            <span class="art-authors">
+                {% if author_list|length == 1 %}
+                    {% for author_id, name in author_list %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endfor %}
+                {% elif author_list|length == 2 %}
+                    {% for author_id, name in author_list %}
+                        {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endif %}
+                    {% endfor %}
+                {% else %}
+                    {% for author_id, name in author_list %}
+                        {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>, {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </span>
+            <!--<div class="art-keywords"><a href="#">justice</a><a href="#">revenge</a><a href="#">vengeance</a><a href="#">belief in a just world</a><a href="#">gender differences</a></div>-->
+            
+            <div class="art-details">
+                {% if article.journal %}<b>Journal:</b> <a href="{% url 'journal detail' article.journal.pk %}">{{ article.journal.title|escape }}</a>{% if article.volume %}, {{ article.volume|escape }}{% if article.issue %}({{ article.issue|escape }}){% endif %}{% if article.pages %}, {{ article.pages|escape }}{% endif %}.{% endif %}<br />{% endif %}
+                <b>Source:</b> {{ source }}{% if url %} (<a href="{{ url }}" target="_blank">{{ url }}</a>)<br />{% endif %}
+                {% if article.doi %}<b>DOI:</b> <a href="http://doi.org/{{ article.doi }}" target="_blank">doi:{{ article.doi }}</a><br />{% endif %}
+                <b>Views:</b> {{ article.view_count }}<br />
+                <b>Downloads:</b> {{ article.download_count }}<br />
+                {% if article.abstract %}
+                <br />
+                <b>Abstract:</b> {{ article.abstract }}
+                {% endif %}
+            </div>
+        </article>
+    </section>
+{% endblock %}

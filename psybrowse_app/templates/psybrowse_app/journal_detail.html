@@ -1,0 +1,28 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="str-content jrnl-content">
+        <article>
+            <div class="jrnl-actions">
+                {% if is_subscribed %}
+                    <a class="button subbtn-unsubscribe" href="{% url 'unsubscribe' %}?type=journal&id={{ journal.pk }}" data-type="journal" data-id="{{ journal.pk }}">Unsubscribe</a>
+                {% else %}
+                    <a class="button subbtn-subscribe" href="{% url 'subscribe' %}?type=journal&id={{ journal.pk }}" data-type="journal" data-id="{{ journal.pk }}">Subscribe</a>
+                {% endif %}
+            </div>
+            <h2 class="jrnl-title">{{ journal.title|escape }}</h2>
+            <div class="jrnl-articleList">
+                <ul>
+                    {% for article in articles %}
+                        <li><a href="{% url 'article detail' article.pk %}">{{ article.title|escape }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </article>
+    </section>
+{% endblock %}

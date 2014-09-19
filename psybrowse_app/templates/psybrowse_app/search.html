@@ -1,0 +1,121 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+{% load psybrowse_app_extras %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}
+{% if num_results %}<p class="srch-numResults">{{ num_results}} results</p>{% endif %}
+<p class="srch-sortHead">Sort by:</p>
+<select class="srch-sort">
+    <option value="-pub_date"{% if sort == '-pub_date' %}selected="selected"{% endif %}>Year: Most recent first</option>
+    <option value="pub_date"{% if sort == 'pub_date' %}selected="selected"{% endif %}>Year: Oldest first</option>
+    <option value="relevance"{% if sort == 'relevance' %}selected="selected"{% endif %}>Relevance</option>
+</select>
+<p class="srch-filterHead">Filter by:</p>
+<ul class="srch-filter">
+    <li>
+        <div class="srch-filterTitle">Year</div>
+        <ul class="srch-subFilter">
+            <li><label for="filterYearFrom">Start from:</label> <input type="text" id="filterYearFrom" class="srch-filterYearText" /><a href="#" class="srch-subFilterLink"><span class="srch-filterPlus">+</span></a></li>
+            <li><label for="filterYearTo">End at:</label> <input type="text" id="filterYearTo" class="srch-filterYearText" /><a href="#" class="srch-subFilterLink"><span class="srch-filterPlus">+</span></a></li>
+            {% for d in summary.dates_order %}
+            <li><a href="#" class="subFilterLink">{{ d }} ({{ summary.dates|get_item:d }})<span class="srch-filterPlus">+</span></a></li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li>
+        <div class="srch-filterTitle">Result Type</div>
+        <ul class="srch-subFilter">
+            {% for t in summary.types_order %}
+            <li><a href="#" class="srch-subFilterLink">{{ t }} ({{ summary.types|get_item:t }})<span class="srch-filterPlus">+</span></a></li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li>
+        <div class="srch-filterTitle">Author</div>
+        <ul class="srch-subFilter">
+            {% for a in summary.authors_order %}
+            <li><a href="#" class="srch-subFilterLink">{{ a }} ({{ summary.authors|get_item:a }})<span class="srch-filterPlus">+</span></a></li>
+            {% endfor %}
+        </ul>
+    </li>
+    <!--<li>
+        <div class="srch-filterTitle">Tags</div>
+        <ul class="srch-subFilter">
+            <li><a href="#" class="srch-subFilterLink">smoking (56)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">social psychology (37)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">meta-analysis (4)<span class="srch-filterPlus">+</span></a></li>
+        </ul>
+    </li>
+    <li>
+        <div class="srch-filterTitle">Rating</div>
+        <ul class="srch-subFilter">
+            <li><a href="#" class="srch-subFilterLink">Above 4 (38)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">Above 3 (+12)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">Above 2 (+99)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">Rated (+28)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">Unrated (199)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">Peer Reviewed (98)<span class="srch-filterPlus">+</span></a></li>
+            <li><a href="#" class="srch-subFilterLink">Not Peer Reviewed (215)<span class="srch-filterPlus">+</span></a></li>
+        </ul>
+    </li>-->
+</ul>
+{% endblock %}
+
+{% block content %}
+    <section class="str-content srch-content">
+        <div class="srch-actions">
+            {% if is_subscribed %}
+                <a class="unsubscribe" href="{% url 'unsubscribe' %}?type=search_string&value={{ search_term_url }}" data-type="search_string" data-value="{{ search_term_url }}">Unsubscribe</a>
+            {% else %}
+                <a class="subscribe" href="{% url 'subscribe' %}?type=search_string&value={{ search_term_url }}" data-type="search_string" data-value="{{ search_term_url }}">Subscribe</a>
+            {% endif %}
+        </div>
+        <h2>Search:</h2>
+        {% if error %}<span class="error"><strong>Error:</strong> {{ error }}</span>{% endif %}
+        {% if search_term %}Search term: {{ search_term }}<br /><br />{% endif %}
+        {% for article, author_list in results %}
+            <div class="srch-result clearfix">
+                <div class="srch-resultInfo">
+                    <img src="{% static 'psybrowse_app/img/edit_copy.png' %}" alt="Article" title="Article" class="srch-resultTypeImg" />
+                    <h2 class="srch-resultTitle"><a href="{% url 'article detail' article.id %}">{{ article.title|escape }}</a></h2>
+                    <span class="srch-resultYear">({{ article.pub_date|date:"Y" }})</span>
+                    <span class="srch-resultAuthors">
+                        {% if author_list|length == 1 %}
+                            {% for author_id, name in author_list %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endfor %}
+                        {% elif author_list|length == 2 %}
+                            {% for author_id, name in author_list %}
+                                {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% for author_id, name in author_list %}
+                                {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>, {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </span>
+                </div>
+                <!--<div class="srch-meta">
+                    <span class="srch-star"><img src="img/star.png" title="This article has been peer reviewed" /></span>
+                    <span class="srch-methodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
+                    <span class="srch-contribution" title="Contribution to Literature" style="background: #dfd300">3.2</span>
+                    <div class="srch-additional">
+                        <ul>
+                            <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Abstract</a></li>
+                            <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Connections</a></li>
+                        </ul>
+                    </div>
+                </div>-->
+            </div>
+        {% empty %}
+            <div>Sorry, your search returned no results.</div>
+        {% endfor %}
+        {% if results %}
+        <div class="srch-pagination">
+            {% if results.has_previous %}<a href="?s={{ search_term_url }}&page={{ results.previous_page_number }}">&lt; previous</a>{% endif %}
+            <span class="srch-pageCurrent">Page {{ results.number }} of {{ results.paginator.num_pages }}</span>
+            {% if results.has_next %}<a href="?s={{ search_term_url }}&page={{ results.next_page_number }}">next &gt;</a>{% endif %}
+        </div>
+        {% endif %}
+    </section>
+{% endblock %}

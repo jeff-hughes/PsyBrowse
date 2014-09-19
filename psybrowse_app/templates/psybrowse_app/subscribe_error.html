@@ -1,0 +1,13 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="homePage">
+        <h2>Subscribe:</h2>
+        <p>{% if error %}Error: {{ error }}{% else %}Success! You have subscribed to {{ type }} "{{ item }}".{% endif %}</p>
+    </section>
+{% endblock %}

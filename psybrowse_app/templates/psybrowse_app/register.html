@@ -1,0 +1,18 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="homePage">
+        <h2>Register:</h2>
+        {% if form.errors %}<p>Your email and password did not match. Please try again.</p>{% endif %}
+        <form method="post" action="{% url 'register' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Register" />
+        </form>
+    </section>
+{% endblock %}

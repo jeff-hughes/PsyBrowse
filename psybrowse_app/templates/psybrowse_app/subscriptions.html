@@ -1,0 +1,33 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="str-content subs-content">
+        <h2>Subscriptions</h2>
+        {% if message %}<span class="message">{{ message }}</span>{% endif %}
+        {% if subscriptions %}
+            <div class="subs-subscription row1">
+                <div class="subs-typeContain"></div>
+                <div class="subs-item">All subscriptions</div>
+                <div class="subs-actions">
+                    <a class="button subbtn-unsubscribe subs-unsubscribe" href="{% url 'unsubscribe all' %}">Unsubscribe</a>
+                </div>
+            </div>
+            {% for type, display, item_url, unsub_url, type_url in subscriptions %}
+            <div class="subs-subscription {% cycle 'row2' 'row1' %}">
+                <div class="subs-typeContain"><span class="subs-type {{ type_url }}">{{ type }}</span></div>
+                <div class="subs-item"><a href="{{ item_url }}">{{ display }}</a></div>
+                <div class="subs-actions">
+                    <a class="button subbtn-unsubscribe subs-unsubscribe" href="{{ unsub_url }}">Unsubscribe</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <p>You currently have no subscriptions.</p>
+        {% endif %}
+    </section>
+{% endblock %}

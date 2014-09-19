@@ -1,0 +1,940 @@
+/* CUSTOM FONT DECLARATIONS */
+/*@font-face {
+    font-family: 'Meta Offc';
+    src: url('../fonts/MetaOffc/MetaOffc-Norm.eot');
+    src: url('../fonts/MetaOffc/MetaOffc-Norm.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/MetaOffc/MetaOffc-Norm.ttf') format('truetype'),
+         url('../fonts/MetaOffc/MetaOffc-Norm.woff') format('woff'),
+         url('../fonts/MetaOffc/MetaOffc-Norm.svg#MetaOffc-Norm') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}*/
+@font-face {
+    font-family: 'Meta Offc Thin';
+    src: url('../fonts/MetaOffc/MetaOffc-Thin.eot');
+    src: url('../fonts/MetaOffc/MetaOffc-Thin.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/MetaOffc/MetaOffc-Thin.ttf') format('truetype'),
+         url('../fonts/MetaOffc/MetaOffc-Thin.woff') format('woff'),
+         url('../fonts/MetaOffc/MetaOffc-Thin.svg#MetaOffc-Thin') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+/*@font-face {
+    font-family: 'Orbitron Black';
+    src: url('../fonts/Orbitron/orbitron-black-webfont.eot');
+    src: url('../fonts/Orbitron/orbitron-black-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/Orbitron/orbitron-black-webfont.woff') format('woff'),
+         url('../fonts/Orbitron/orbitron-black-webfont.ttf') format('truetype'),
+         url('../fonts/Orbitron/orbitron-black-webfont.svg#orbitronblack') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}*/
+
+/*
+ * Adapted from the HTML5 Boilerplate (html5boilerplate.com)
+ *
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ *
+ * Detailed information about this CSS: h5bp.com/css
+ *
+ * ==|== normalize ==========================================================
+ */
+
+/* =============================================================================
+   HTML5 display definitions
+   ========================================================================== */
+
+article, aside, details, figcaption, figure, footer, header, hgroup, nav, section { display: block; }
+audio, canvas, video { display: inline-block; *display: inline; *zoom: 1; }
+audio:not([controls]) { display: none; }
+[hidden] { display: none; }
+
+/* =============================================================================
+   Base
+   ========================================================================== */
+
+/*
+ * 1. Correct text resizing oddly in IE6/7 when body font-size is set using em units
+ * 2. Force vertical scrollbar in non-IE
+ * 3. Prevent iOS text size adjust on device orientation change, without disabling user zoom: h5bp.com/g
+ */
+html { font-size: 100%; overflow-y: scroll; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+body { margin: 0; font-size: 13px; line-height: 1.231; }
+body, button, input, select, textarea { font-family: sans-serif; color: #222; }
+
+/*
+ * Remove text-shadow in selection highlight: h5bp.com/i
+ * These selection declarations have to be separate
+ */
+::-moz-selection { background: #3297fd; color: #fff; text-shadow: none; }
+::selection { background: #3297fd; color: #fff; text-shadow: none; }
+
+
+/* =============================================================================
+   Links
+   ========================================================================== */
+
+a { color: #00e; }
+a:visited { color: #551a8b; }
+a:hover { color: #06e; }
+a:focus { outline: thin dotted; }
+
+/* Improve readability when focused and hovered in all browsers: h5bp.com/h */
+a:hover, a:active { outline: 0; }
+
+
+/* =============================================================================
+   Typography
+   ========================================================================== */
+
+abbr[title] { border-bottom: 1px dotted; }
+b, strong { font-weight: bold; }
+blockquote { margin: 1em 40px; }
+dfn { font-style: italic; }
+hr { display: block; height: 1px; border: 0; border-top: 1px solid #ccc; margin: 1em 0; padding: 0; }
+ins { background: #ff9; color: #000; text-decoration: none; }
+mark { background: #ff0; color: #000; font-style: italic; font-weight: bold; }
+
+/* Redeclare monospace font family: h5bp.com/j */
+pre, code, kbd, samp { font-family: monospace, monospace; _font-family: 'courier new', monospace; font-size: 1em; }
+
+/* Improve readability of pre-formatted text in all browsers */
+pre { white-space: pre; white-space: pre-wrap; word-wrap: break-word; }
+
+q { quotes: none; }
+q:before, q:after { content: ""; content: none; }
+
+small { font-size: 85%; }
+
+/* Position subscript and superscript content without affecting line-height: h5bp.com/k */
+sub, sup { font-size: 75%; line-height: 0; position: relative; vertical-align: baseline; }
+sup { top: -0.5em; }
+sub { bottom: -0.25em; }
+
+
+/* =============================================================================
+   Lists
+   ========================================================================== */
+
+ul, ol { margin: 1em 0; padding: 0; }
+dd { margin: 0 0 0 40px; }
+nav ul, nav ol { list-style: none; list-style-image: none; margin: 0; padding: 0; }
+
+
+/* =============================================================================
+   Embedded content
+   ========================================================================== */
+
+/*
+ * 1. Improve image quality when scaled in IE7: h5bp.com/d
+ * 2. Remove the gap between images and borders on image containers: h5bp.com/e
+ * 3. Correct overflow not hidden in IE9
+ */
+img { border: 0; -ms-interpolation-mode: bicubic; vertical-align: middle; }
+svg:not(:root) { overflow: hidden; }
+
+
+/* =============================================================================
+   Figures
+   ========================================================================== */
+
+figure { margin: 0; }
+
+
+/* =============================================================================
+   Forms
+   ========================================================================== */
+
+form { margin: 0; }
+fieldset { border: 0; margin: 0; padding: 0; }
+
+/* Indicate that 'label' will shift focus to the associated form element */
+label { cursor: pointer; }
+
+/*
+ * 1. Correct color not inheriting in IE6/7/8/9
+ * 2. Correct alignment displayed oddly in IE6/7
+ */
+legend { border: 0; *margin-left: -7px; padding: 0; }
+
+/*
+ * 1. Correct font-size not inheriting in all browsers
+ * 2. Remove margins in FF3/4 S5 Chrome
+ * 3. Define consistent vertical alignment display in all browsers
+ */
+button, input, select, textarea { font-size: 100%; margin: 0; vertical-align: baseline; *vertical-align: middle; }
+
+/*
+ * 1. Define line-height as normal to match FF3/4 (set using !important in the UA stylesheet)
+ * 2. Correct inner spacing displayed oddly in IE6/7
+ */
+button, input { line-height: normal; *overflow: visible; }
+
+/*
+ * Reintroduce inner spacing in 'table' to avoid overlap and whitespace issues in IE6/7
+ */
+table button, table input { *overflow: auto; }
+
+/*
+ * 1. Display hand cursor for clickable form elements
+ * 2. Allow styling of clickable form elements in iOS
+ */
+button, input[type="button"], input[type="reset"], input[type="submit"] { cursor: pointer; -webkit-appearance: button; }
+
+/*
+ * Consistent box sizing and appearance
+ */
+input[type="checkbox"], input[type="radio"] { box-sizing: border-box; }
+input[type="search"] { -webkit-appearance: textfield; -moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box; }
+input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
+
+/*
+ * Remove inner padding and border in FF3/4: h5bp.com/l
+ */
+button::-moz-focus-inner, input::-moz-focus-inner { border: 0; padding: 0; }
+
+/*
+ * 1. Remove default vertical scrollbar in IE6/7/8/9
+ * 2. Allow only vertical resizing
+ */
+textarea { overflow: auto; vertical-align: top; resize: vertical; }
+
+/* Colors for form validity */
+input:valid, textarea:valid {  }
+input:invalid, textarea:invalid { background-color: #f0dddd; }
+
+
+/* =============================================================================
+   Tables
+   ========================================================================== */
+
+table { border-collapse: collapse; border-spacing: 0; }
+td { vertical-align: top; }
+
+
+/* ==|== primary styles =====================================================
+   Author: Jeff Hughes
+   ========================================================================== */
+
+/* The CSS in this file roughly follows the following structure:
+   http://benfrain.com/enduring-css-writing-style-sheets-rapidly-changing-long-lived-projects
+*/
+
+/* Thematic visual styles. To be applied universally on all pages, as a consistent default. */
+
+body {
+    background: #f9f9f9;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+a {
+    color: #003fb3;
+}
+a:visited {
+    color: #7d38b8;
+}
+a:hover {
+    text-decoration: none;
+}
+
+input[type="text"] {
+    border: 1px #ddd solid;
+}
+
+.button {
+    border-width: 1px;
+    border-style: solid;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    display: block;
+    text-decoration: none;
+}
+
+.modal {
+    background: #fff;
+    border: 1px #e2e2e2 solid;
+    -moz-box-shadow: 3px 3px 15px #888;
+    -webkit-box-shadow: 3px 3px 15px #888;
+    box-shadow: 3px 3px 15px #888;
+    display: none;
+    position: fixed;
+    padding: 15px;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+}
+
+.modalExit {
+    float: right;
+    font-size: 150%;
+    margin: 0 0 5px 10px;
+    position: relative;
+    top: -8px;
+    left: 3px;
+}
+
+.modalExit a {
+    text-decoration: none;
+}
+
+
+/* Structural elements. Applies to all pages. Namespaced with 'str-' */
+
+.str-container {
+    background: #fff;
+    border: 1px #ddd solid;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    -moz-box-shadow: 0px 0px 15px #ddd;
+    -webkit-box-shadow: 0px 0px 15px #ddd;
+    box-shadow: 0px 0px 15px #ddd;
+    margin: 15px auto;
+    padding: 15px 20px 20px;
+    width: 920px;
+}
+
+.str-header {
+    margin-bottom: 10px;
+}
+
+.str-main {
+    display: table;
+    width: 100%;
+}
+
+.str-sidebar {
+    border-right: 1px #ddd solid;
+    display: table-cell;
+    padding-right: 5px;
+    vertical-align: top;
+    width: 150px;
+}
+
+.str-content {
+    display: table-cell;
+    padding: 1em 0 1em 1em;
+    vertical-align: top;
+}
+
+.str-footer {
+    border-top: 1px #ddd solid;
+    margin-top: 20px;
+    padding-top: 10px;
+    text-align: center;
+}
+
+/* Header styles. Applies to all pages. Namespaced with 'hdr-' */
+
+.hdr-userSettings {
+    float: right;
+    font-size: 85%;
+}
+
+.hdr-userIcon {
+    margin: -2px 2px 0 0;
+}
+
+.hdr-siteTitle {
+    font-size: 320%;
+    padding-bottom: 5px;
+    /*font-family: "Orbitron Black", "Monda", "Meta SC Offc Book", "DINEngschrift", "DIN Light", Arial, Helvetica, sans-serif;*/
+    /*letter-spacing: .03em;*/
+}
+
+.siteTitle a {
+    color: #000;
+    text-decoration: none;
+}
+
+.hdr-siteTitleImg {
+    width: 320px;
+}
+
+.hdr-searchInput {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    font-family: "Meta Offc Thin", Arial, Helvetica, sans-serif;
+    font-size: 180%;
+    margin-right: 2px;
+    padding: 6px 10px;
+    width: 91%;
+}
+
+/* styles placeholder input text; these need to be set individually to work properly */
+.hdr-searchInput::-webkit-input-placeholder { color: #bbb; font-style: italic; }
+.hdr-searchInput:-moz-placeholder { color: #bbb; font-style: italic; }
+.hdr-searchInput::-moz-placeholder { color: #bbb; font-style: italic; }
+.hdr-searchInput:-ms-input-placeholder { color: #bbb; font-style: italic; }
+
+.hdr-searchButton {
+    position: relative;
+    top: 2px;
+    vertical-align: bottom;
+    width: 54px;
+    height: 54px;
+}
+
+.hdr-searchOptions {
+    float: left;
+    font-size: 80%;
+    text-align: right;
+    padding: 3px 10px;
+    width: 91%;
+}
+
+
+/* Index page. Namespaced with 'indx-' */
+
+.indx-result {
+    margin-bottom: 20px;
+}
+.indx-result:last-of-type {
+    margin-bottom: 0;
+}
+
+.indx-resultInfo {
+    float: left;
+    /*font-family: "Meta Offc", Arial, Helvetica, sans-serif;*/
+    width: 75%;
+}
+
+.indx-resultTypeImg {
+    float: left;
+    padding: 0 5px 5px 0;
+}
+
+.indx-resultTitle {
+    font-size: 150%;
+    font-weight: normal;
+    margin: 0;
+}
+
+.indx-resultYear {
+    margin-right: 3px;
+}
+
+.indx-resultAuthors {
+    font-style: italic;
+}
+
+.indx-resultMeta {
+    float: right;
+    margin-right: 10px;
+}
+
+
+/* Subscribe and unsubscribe buttons. Used to retain visual consistency throughout. Namespaced with 'subbtn-' */
+
+.subbtn-subscribe, .subbtn-unsubscribe {
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.subbtn-subscribe:hover, .subbtn-unsubscribe:hover, .subbtn-subscribe:visited, .subbtn-unsubscribe:visited {
+    color: #fff;
+}
+
+.subbtn-subscribe {
+    background: #6d6;
+    border-color: #0c0;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 25px;
+}
+
+.subbtn-unsubscribe {
+    background: #e33;
+    border-color: #b00;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 15px;
+}
+
+
+/* Article detail page. Namespaced with 'art-' */
+
+.art-article {
+    display: table-cell;
+    line-height: 160%;
+    padding: 1em 0 1em 1em;
+    vertical-align: top;
+}
+
+.art-ratings {
+    border: 1px #bbb solid;
+    border-radius: 5px;
+    cursor: pointer;
+    float: right;
+    padding: 10px;
+}
+
+.art-ratingsMethodology, .art-ratingsContribution {
+    color: #fff;
+    display: inline-block;
+    font-size: 120%;
+    padding: 5px;
+    width: 23px;
+    height: 20px;
+}
+
+.art-ratingsContribution {
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -khtml-border-radius: 20px;
+    border-radius: 20px;
+}
+
+.art-ratingsStar {
+    display: inline-block;
+    text-align: right;
+    vertical-align: text-bottom;
+    width: 20px;
+}
+
+.art-actions {
+    float: right;
+    padding: 3px 10px 10px;
+}
+
+.art-title {
+    font-size: 200%;
+    font-weight: normal;
+    line-height: 110%;
+    margin: 0;
+}
+
+.art-meta {
+    padding-bottom: .5em;
+}
+
+.art-year {
+    margin-right: 3px;
+}
+
+.art-authors {
+    font-size: 85%;
+    font-style: italic;
+}
+
+.art-keywords {
+    font-size: 85%;
+}
+
+.art-keywords a {
+    background: #fafafa;
+    border: 1px #ddd solid;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    margin-right: 3px;
+    padding: 1px 5px;
+    text-decoration: none;
+}
+
+.art-details {
+    margin-top: 15px;
+}
+
+
+/* Author detail page. Namespaced with 'auth-' */
+
+.auth-actions {
+    float: right;
+    padding: 3px 10px 10px;
+}
+
+.auth-name {
+    font-size: 200%;
+    font-weight: normal;
+    line-height: 110%;
+    margin: 0;
+}
+
+.auth-articleList {
+    margin-top: 15px;
+}
+
+
+/* Journal detail page. Namespaced with 'jrnl-' */
+
+.jrnl-actions {
+    float: right;
+    padding: 3px 10px 10px;
+}
+
+.jrnl-title {
+    font-size: 200%;
+    font-weight: normal;
+    line-height: 110%;
+    margin: 0;
+}
+
+.jrnl-articleList {
+    margin-top: 15px;
+}
+
+
+/* Keyword detail page. Namespaced with 'kwd-' */
+
+.kwd-actions {
+    float: right;
+    padding: 3px 10px 10px;
+}
+
+.kwd-name {
+    font-size: 200%;
+    font-weight: normal;
+    line-height: 110%;
+    margin: 0;
+}
+
+.kwd-articleList {
+    margin-top: 15px;
+}
+
+
+/* User detail page. Namespaced with 'usr-' */
+
+
+/* Search results page. Namespaced with 'srch-' */
+
+.srch-numResults {
+    font-size: 120%;
+    font-weight: bold;
+    line-height: 90%;
+}
+
+.srch-filterHead, .srch-sortHead {
+    font-size: 120%;
+    font-style: italic;
+    margin: 1.2em 0 .5em;
+}
+
+.srch-sort {
+    font-size: 90%;
+}
+
+.srch-filter {
+    list-style: none;
+    margin-top: 0;
+    /*padding-left: 1em;*/
+}
+
+.srch-filterTitle {
+    cursor: pointer;
+    color: #003fb3;
+    display: block;
+    padding: 3px 5px;
+}
+.srch-filterTitle:hover {
+    background: #efefef;
+    color: #06e;
+}
+
+.srch-filter li {
+    margin-bottom: 5px;
+}
+
+.srch-filter li a {
+    text-decoration: none;
+}
+
+.srch-filterYearText {
+    padding: 0;
+    width: 35px;
+}
+
+.srch-subFilter {
+    list-style: none;
+    margin-top: 0;
+    padding-left: 1em;
+}
+
+.srch-filter li .srch-subFilter {
+    display: none;
+}
+.srch-filter li.open .srch-subFilter {
+    display: block;
+}
+
+.srch-subFilter li {
+    cursor: pointer;
+    display: block;
+    margin-bottom: 2px;
+    padding: 3px 5px;
+    -webkit-transition: all 0.2s ease-in-out;
+    -moz-transition: all 0.2s ease-in-out;
+    -ms-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+.srch-subFilter li:hover {
+    background: #efefef;
+}
+
+.srch-filterPlus {
+    color: #777;
+    float: right;
+    font-size: 120%;
+    font-weight: bold;
+    margin: -1px 1px 0 0;
+}
+
+a:hover .srch-filterPlus {
+    color: #06e;
+}
+
+.srch-subFilter li.added {
+    background: #06e;
+    color: #fff;
+    -webkit-transition: all 0.2s ease-in-out;
+    -moz-transition: all 0.2s ease-in-out;
+    -ms-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+
+.srch-subFilter li.added a, .srch-subFilter li.added .srch-filterPlus, .srch-subFilter li.added a:hover .srch-filterPlus {
+    color: #fff;
+}
+
+.srch-content {
+    display: table-cell;
+    padding: 1em;
+    vertical-align: top;
+}
+
+.srch-result {
+    margin-bottom: 20px;
+}
+
+.srch-resultInfo {
+    float: left;
+    /*font-family: "Meta Offc", Arial, Helvetica, sans-serif;*/
+    width: 75%;
+}
+
+.srch-resultTypeImg {
+    float: left;
+    padding: 0 5px 5px 0;
+}
+
+.srch-resultTitle {
+    font-size: 150%;
+    font-weight: normal;
+    margin: 0;
+}
+
+.srch-resultYear {
+    margin-right: 3px;
+}
+
+.srch-resultAuthors {
+    font-style: italic;
+}
+
+.srch-resultMeta {
+    float: right;
+    margin-right: 60px;
+}
+
+
+/* Advanced search page. Namespaced with 'advsrch-' */
+.advsrch-formTable th, .advsrch-formTable td {
+    padding-bottom: 5px;
+}
+
+.advsrch-formTable th {
+    font-weight: normal;
+    padding-right: 5px;
+    text-align: right;
+}
+
+.advsrch-fieldGroup tr:last-child th, .advsrch-fieldGroup tr:last-child td {
+    padding-bottom: 25px;
+}
+
+.advsrch-formTable input[type="text"], .advsrch-formTable select {
+    border: 1px #a9a9a9 solid;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -khtml-border-radius: 2px;
+    border-radius: 2px;
+    color: #666;
+    padding: 5px;
+}
+
+.advsrch-formTable input[type="text"] {
+    width: 384px;
+}
+
+.advsrch-formTable input[type="text"]:hover, .advsrch-formTable input[type="text"]:active {
+    border: 1px #7e7e7e solid;
+}
+
+.advsrch-twoInputs label {
+    margin: 0 5px;
+}
+.advsrch-twoInputs input[type="text"] {
+    width: 150px;
+}
+
+
+/* Registration page. Namespaced with 'rgst-' */
+
+
+/* Login page. Namespaced with 'login-' */
+
+
+/* Logout page. Namespaced with 'logout-' */
+
+
+/* Subscriptions page. Namespaced with 'subs-' */
+.subs-subscription {
+    display: table;
+    padding: 5px 0;
+    width: 90%;
+}
+
+.subs-subscription.row1 {
+    background: #fff;
+}
+
+.subs-subscription.row2 {
+    background: #efefef;
+}
+
+.subs-typeContain {
+    display: table-cell;
+    vertical-align: middle;
+    width: 100px;
+}
+
+.subs-type {
+    background: #777;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    color: #fff;
+    display: block;
+    font-size: 85%;
+    line-height: 140%;
+    margin: 0 10px;
+    padding: 2px 6px;
+    text-align: center;
+}
+.subs-type.article {
+    background: #9d0000;
+}
+.subs-type.author {
+    background: #175cbe;
+}
+.subs-type.journal {
+    background: #079d00;
+}
+.subs-type.keyword {
+    background: #81009d;
+}
+.subs-type.search_string {
+    background: #e0790b;
+}
+
+.subs-item {
+    display: table-cell;
+    font-size: 130%;
+    vertical-align: middle;
+}
+
+.subs-actions {
+    display: table-cell;
+    float: none;
+    vertical-align: middle;
+    width: 90px;
+}
+
+.subs-unsubscribe {
+    background: #e33;
+    border-color: #b00;
+    color: #fff;
+    font-size: 90%;
+    font-weight: bold;
+    padding: 5px 8px;
+}
+
+
+
+/* ==|== non-semantic helper classes ========================================
+   Please define your styles before this section.
+   ========================================================================== */
+
+/* For image replacement */
+.ir { display: block; border: 0; text-indent: -999em; overflow: hidden; background-color: transparent; background-repeat: no-repeat; text-align: left; direction: ltr; }
+.ir br { display: none; }
+
+/* Hide from both screenreaders and browsers: h5bp.com/u */
+.hidden { display: none !important; visibility: hidden; }
+
+/* Hide only visually, but have it available for screenreaders: h5bp.com/v */
+.visuallyhidden { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; }
+
+/* Extends the .visuallyhidden class to allow the element to be focusable when navigated to via the keyboard: h5bp.com/p */
+.visuallyhidden.focusable:active, .visuallyhidden.focusable:focus { clip: auto; height: auto; margin: 0; overflow: visible; position: static; width: auto; }
+
+/* Hide visually and from screenreaders, but maintain layout */
+.invisible { visibility: hidden; }
+
+/* Contain floats: h5bp.com/q */ 
+.clearfix:before, .clearfix:after { content: ""; display: table; }
+.clearfix:after { clear: both; }
+.clearfix { zoom: 1; }
+
+
+/* ==|== media queries ======================================================
+   PLACEHOLDER Media Queries for Responsive Design.
+   These override the primary ('mobile first') styles
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 480px) {
+/* Style adjustments for viewports 480px and over go here */
+
+}
+
+@media only screen and (min-width: 768px) {
+/* Style adjustments for viewports 768px and over go here */
+
+}
+
+
+/* ==|== print styles =======================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+ 
+@media print {
+    * { background: transparent !important; color: black !important; text-shadow: none !important; filter:none !important; -ms-filter: none !important; } /* Black prints faster: h5bp.com/s */
+    a, a:visited { text-decoration: underline; }
+    a[href]:after { content: " (" attr(href) ")"; }
+    abbr[title]:after { content: " (" attr(title) ")"; }
+    .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after { content: ""; }  /* Don't show links for images, or javascript/internal links */
+    pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+    thead { display: table-header-group; } /* h5bp.com/t */
+    tr, img { page-break-inside: avoid; }
+    img { max-width: 100% !important; }
+    @page { margin: 0.5cm; }
+    p, h2, h3 { orphans: 3; widows: 3; }
+    h2, h3 { page-break-after: avoid; }
+}

@@ -1,0 +1,65 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="str-content advsrch-content">
+        <h2>Advanced Search:</h2>
+        {% if search_terms %}<span><strong>Search:</strong> {{ search_terms }}</span>{% endif %}
+        <p>
+            Search using the boxes below. The '?' character will match a single character, and the '*' character will match multiple characters. Enclosing search terms in double quotes will search for that phrase.
+        </p>
+        <form method="post" action="{% url 'advanced search' %}">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<span class="error"><strong>Error:</strong> {{ form.non_field_errors }}</span>{% endif %}
+            <table class="advsrch-formTable">
+                <tbody class="advsrch-fieldGroup">
+                    <tr class="advsrch-field">
+                        <th>{{ form.title.label_tag }}</th>
+                        <td>{{ form.title.errors }}{{ form.title }}</td>
+                    </tr>
+                    <tr class="advsrch-field">
+                        <th>{{ form.abstract.label_tag }}</th>
+                        <td>{{ form.abstract.errors }}{{ form.abstract }}</td>
+                    </tr>
+                    <tr class="advsrch-field">
+                        <th>{{ form.authors.label_tag }}</th>
+                        <td>{{ form.authors.errors }}{{ form.authors }}</td>
+                    </tr>
+                </tbody>
+                <tbody class="advsrch-fieldGroup">
+                    <tr class="advsrch-field">
+                        <th>{{ form.type.label_tag }}</th>
+                        <td>
+                            {{ form.type.errors }}{{ form.type }}
+                        </td>
+                    </tr>
+                    <tr class="advsrch-field">
+                        <th>{{ form.journal.label_tag }}</th>
+                        <td>{{ form.journal.errors }}{{ form.journal }}</td>
+                    </tr>
+                    <tr class="advsrch-field">
+                        <th>Publication Date:</th>
+                        <td class="advsrch-twoInputs">{{ form.pub_date_from.errors }}{{ form.pub_date_from.label_tag }}{{ form.pub_date_from }}{{ form.pub_date_to.errors }}{{ form.pub_date_to.label_tag }}{{ form.pub_date_to }}</td>
+                    </tr>
+                </tbody>
+                <tbody class="advsrch-fieldGroup">
+                    <tr class="advsrch-field">
+                        <th>{{ form.source.label_tag }}</th>
+                        <td>
+                            {{ form.source.errors }}{{ form.source }}
+                        </td>
+                    </tr>
+                    <tr class="advsrch-field">
+                        <th>{{ form.keywords.label_tag }}</th>
+                        <td>{{ form.keywords.errors }}{{ form.keywords }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type="submit" value="Search" />
+        </form>
+    </section>
+{% endblock %}
