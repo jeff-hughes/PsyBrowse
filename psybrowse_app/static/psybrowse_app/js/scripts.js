@@ -21,18 +21,25 @@ $(function() {
         return b;
     })(window.location.search.substr(1));
 
-
-    /* SEARCH PAGE */
-    $('.srch-sort').change(function(e) {
-        urlQuery['sort'] = $(this).val();
+    var addQuery = function(keysValues) {
+        for (var key in keysValues) {
+            urlQuery[key] = keysValues[key];
+        }
         // put URL query string back together
         urlString = '?';
         for (var key in urlQuery) {
             if (urlString !== '?') {
-                urlString += '&'
+                urlString += '&';
             }
-            urlString += key + '=' + urlQuery[key]
+            urlString += key + '=' + urlQuery[key];
         }
+        return urlString;
+    };
+
+
+    /* SEARCH PAGE */
+    $('.srch-sort').change(function(e) {
+        urlString = addQuery({'sort': $(this).val()});
         window.location = urlString;
     });
 
@@ -48,21 +55,59 @@ $(function() {
         }
     });
 
+    var addFilter = function($elem) {
+        var $plus = $elem.find('.srch-filterPlus');
+        $elem.addClass('added');
+        $plus.animate({opacity: 0}, 100, function() {
+            $plus.html('&minus;').animate({opacity: 1}, 100);  
+        });
+    };
+
+    var removeFilter = function($elem) {
+        var $plus = $elem.find('.srch-filterPlus');
+        $elem.removeClass('added');
+        $plus.animate({opacity: 0}, 100, function() {
+            $plus.html('+').animate({opacity: 1}, 100);  
+        });
+    };
+
+    if ('filter' in urlQuery) {
+        var filters = urlQuery['filter'].split('|');
+        console.log(filters);
+        for (var i in filters) {
+            console.log($('.srch-subFilter [data-filter="'+filters[i]+'"]'));
+            addFilter($('.srch-subFilter [data-filter="'+filters[i]+'"]').parent());
+        }
+    }
+
     $('.srch-subFilter li').click(function(e) {
         e.preventDefault();
-        var $plus = $(this).find('.srch-filterPlus');
+        var dataFilter = $(this).children('[data-filter]').attr('data-filter');
+
         if ($(this).hasClass('added') === false) {
-            $(this).addClass('added');
-            $plus.animate({opacity: 0}, 100, function() {
-                $plus.html('&minus;')
-                    .animate({opacity: 1}, 100);  
-            });
+            //addFilter($(this));
+            if ('filter' in urlQuery) {
+                var filterValue = urlQuery['filter'] + '|' + dataFilter;
+            } else {
+                var filterValue = dataFilter;
+            }
+            var urlString = addQuery({'filter': filterValue});
+            window.location = urlString;
         } else {
-            $(this).removeClass('added');
-            $plus.animate({opacity: 0}, 100, function() {
-                $plus.html('+')
-                    .animate({opacity: 1}, 100);  
-            });
+            removeFilter($(this));
+            if ('filter' in urlQuery) {
+                var ff = urlQuery['filter'];
+                var pos = ff.indexOf(dataFilter);
+                var length = dataFilter.length;
+                if (pos > -1) {
+                    if (ff.charAt(pos-1) == '|') {
+                        pos--;
+                        length++;
+                    }
+                    var filterValue = ff.substr(0, pos) + ff.substr(pos + length);
+                    urlQuery['filter'] = filterValue;
+                }
+            }
         }
     });
 
@@ -71,22 +116,13 @@ $(function() {
     });
 
     $('.srch-filterYearText').keyup(function(e) {
-        var $plus = $(this).parent().find('.srch-filterPlus');
         if ($(this).val() != '') {
             if ($(this).parent().hasClass('added') === false) {
-                $(this).parent().addClass('added');
-                $plus.animate({opacity: 0}, 100, function() {
-                    $plus.html('&minus;')
-                        .animate({opacity: 1}, 100);  
-                });
+                addFilter($(this).parent());
             }
         } else {
             if ($(this).parent().hasClass('added') === true) {
-                $(this).parent().removeClass('added');
-                $plus.animate({opacity: 0}, 100, function() {
-                    $plus.html('+')
-                        .animate({opacity: 1}, 100);  
-                });
+                removeFilter($(this).parent());
             }
         }
     });
