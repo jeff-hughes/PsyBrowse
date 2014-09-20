@@ -107,7 +107,7 @@ $(function() {
 
         if ($(this).hasClass('added') === false) {
             //addFilter($(this));
-            if ('filter' in urlQuery) {
+            if ('filter' in urlQuery && urlQuery['filter'] != '') {
                 var filterValue = urlQuery['filter'] + '|' + dataFilter;
             } else {
                 var filterValue = dataFilter;
@@ -123,6 +123,9 @@ $(function() {
 
                 if (pos > -1) {
                     if (ff.charAt(pos+length) == '|') {
+                        length++;
+                    } else if (ff.charAt(pos-1) == '|') {
+                        pos--;
                         length++;
                     }
                     var filterValue = ff.substr(0, pos) + ff.substr(pos + length);

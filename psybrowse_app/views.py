@@ -223,8 +223,9 @@ def search(request):
                 date_from = (filtersDict['dateFrom'] + ' ') if filtersDict['dateFrom'] else ''
                 date_to = (' ' + filtersDict['dateTo']) if filtersDict['dateTo'] else ''
 
-                date_range = ' date:[{:s}TO{:s}]'.format(date_from, date_to)  # e.g., [2012 TO 2014] or [2012 TO] or [TO 2014]
-                filterText += date_range
+                if date_from or date_to:
+                    date_range = ' date:[{:s}TO{:s}]'.format(date_from, date_to)  # e.g., [2012 TO 2014] or [2012 TO] or [TO 2014]
+                    filterText += date_range
 
                 # arrange into text to insert into query
                 filtersList = ['date', 'type', 'authors']
