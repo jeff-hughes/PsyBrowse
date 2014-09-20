@@ -7,18 +7,18 @@ $(function() {
     });
 
     // gets query string from URL and returns object with set of keys and values
-    var urlQuery = (function(a) {
-        if (a == '') return {};
-        a = a.split('&');
-        var b = {};
-        for (var i = 0; i < a.length; ++i) {
-            var p = a[i].split('=', 2);
-            if (p.length == 1)
-                b[p[0]] = '';
+    var urlQuery = (function(query) {
+        if (query == '') return {};
+        query = query.split('&');
+        var queryObj = {};
+        for (var i = 0; i < query.length; ++i) {
+            var keyval = query[i].split('=', 2);
+            if (keyval.length == 1)
+                queryObj[keyval[0]] = '';
             else
-                b[p[0]] = p[1];
+                queryObj[keyval[0]] = decodeURIComponent(keyval[1]);
         }
-        return b;
+        return queryObj;
     })(window.location.search.substr(1));
 
     var addQuery = function(keysValues) {
