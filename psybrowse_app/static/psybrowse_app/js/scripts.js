@@ -25,16 +25,23 @@ $(function() {
         for (var key in keysValues) {
             urlQuery[key] = keysValues[key];
         }
-        // put URL query string back together
+        return getQuery();
+    };
+
+    var getQuery = function(includeEmpty) {
+        includeEmpty = typeof includeEmpty !== 'undefined' ? includeEmpty : false;
+        
         var urlString = '?';
         for (var key in urlQuery) {
-            if (urlString !== '?') {
-                urlString += '&';
+            if (urlQuery[key] !== '' || includeEmpty) {
+                if (urlString !== '?') {
+                    urlString += '&';
+                }
+                urlString += key + '=' + urlQuery[key];
             }
-            urlString += key + '=' + urlQuery[key];
         }
         return urlString;
-    };
+    }
 
 
     /* SEARCH PAGE */
@@ -131,8 +138,8 @@ $(function() {
                     var filterValue = ff.substr(0, pos) + ff.substr(pos + length);
                     urlQuery['filter'] = filterValue;
                 }
-                console.log(urlQuery);
             }
+            window.location = getQuery();
         }
     });
 
