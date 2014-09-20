@@ -194,6 +194,33 @@ def search(request):
 
     if terms:
         if form.is_valid():
+            # deal with filtering results
+            filterText = ''
+            if request.GET.get('filter'):
+                filters = request.GET.get('filter').split('|')
+                filtersDict = {
+                    'date': [],
+                    'type': [],
+                    'authors': [],
+                }
+                # pull all data from the URL query
+                for f in filters:
+                    keyval = f.split(':')
+                    if keyval[0] == 'date':
+                        filtersDict['date'].append(keyval[1])
+                    elif keyval[0] == 'type':
+                        filtersDict['type'].append(keyval[1])
+                    elif keyval[0] == 'author':
+                        filtersDict['authors'].append(keyval[1])
+
+                # arrange into text to insert into query
+                for cat in filtersDict:
+                    if len(filtersDict[cat]) == 1:
+                        filterText += ' {:s}:{:s}'.format(cat, filtersDict[cat][0])
+                    elif len(filtersDict[cat]) > 1:
+                        filterText += ' {:s}:({:s})'.format(cat, ' OR '.join(filtersDict[cat]))
+
+            # deal with sorting results
             if request.GET.get('sort'):
                 sort = request.GET.get('sort')
                 real_sort = sort
@@ -203,15 +230,16 @@ def search(request):
                 sort = DEFAULT_SORT
                 real_sort = sort
 
-            query_set = Article.search(form.cleaned_data['search']).prefetch_related('authors').order_by(real_sort)
+            query = form.cleaned_data['search'] + filterText
+            query_set = Article.search(query).prefetch_related('authors').order_by(real_sort)
+            summary = {
+                'dates': defaultdict(int),
+                'types': defaultdict(int),
+                'authors': defaultdict(int),
+            }
 
             if query_set:
                 author_list = []
-                summary = {
-                    'dates': defaultdict(int),
-                    'types': defaultdict(int),
-                    'authors': defaultdict(int),
-                }
 
                 # pull all summary (count) data
                 for article in query_set:
@@ -247,8 +275,8 @@ def search(request):
             return render(request, 'psybrowse_app/search.html', {
                 'num_results': query_set.count(),
                 'summary': summary,
-                'search_term': form.cleaned_data['search'],
-                'search_term_url': urllib.quote_plus(form.cleaned_data['search']),
+                'search_term': query,
+                'search_term_url': urllib.quote_plus(query),
                 'sort': sort,
                 'results': results,
                 'is_subscribed': is_subscribed,
