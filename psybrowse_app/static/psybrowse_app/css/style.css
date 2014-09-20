@@ -716,6 +716,11 @@ a:hover .srch-filterPlus {
     vertical-align: top;
 }
 
+.srch-actions {
+    float: right;
+    padding: 3px 10px 10px;
+}
+
 .srch-result {
     margin-bottom: 20px;
 }

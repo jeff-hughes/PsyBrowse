@@ -67,9 +67,9 @@
     <section class="str-content srch-content">
         <div class="srch-actions">
             {% if is_subscribed %}
-                <a class="unsubscribe" href="{% url 'unsubscribe' %}?type=search_string&value={{ search_term_url }}" data-type="search_string" data-value="{{ search_term_url }}">Unsubscribe</a>
+                <a class="button subbtn-unsubscribe" href="{% url 'unsubscribe' %}?type=search_string&value={{ search_term_url }}" data-type="search_string" data-value="{{ search_term_url }}">Unsubscribe</a>
             {% else %}
-                <a class="subscribe" href="{% url 'subscribe' %}?type=search_string&value={{ search_term_url }}" data-type="search_string" data-value="{{ search_term_url }}">Subscribe</a>
+                <a class="button subbtn-subscribe" href="{% url 'subscribe' %}?type=search_string&value={{ search_term_url }}" data-type="search_string" data-value="{{ search_term_url }}">Subscribe</a>
             {% endif %}
         </div>
         <h2>Search:</h2>
