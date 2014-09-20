@@ -26,7 +26,7 @@ $(function() {
             urlQuery[key] = keysValues[key];
         }
         // put URL query string back together
-        urlString = '?';
+        var urlString = '?';
         for (var key in urlQuery) {
             if (urlString !== '?') {
                 urlString += '&';
@@ -39,21 +39,17 @@ $(function() {
 
     /* SEARCH PAGE */
     $('.srch-sort').change(function(e) {
-        urlString = addQuery({'sort': $(this).val()});
+        var urlString = addQuery({'sort': $(this).val()});
         window.location = urlString;
     });
 
-    $('.srch-filterTitle').click(function(e) {
-        e.preventDefault();
-        var $subfilter = $(this).parent().find('.srch-subFilter');
-        if ($subfilter.is(":hidden")) {
-            $subfilter.slideDown(200);
-            //$(this).find('img').attr('src', 'img/arrow_down.png');
-        } else {
-            $subfilter.slideUp(200);
-            //$(this).find('img').attr('src', 'img/arrow_right.png');
-        }
-    });
+    var openFilterGroup = function($elem) {
+        $elem.slideDown(200);
+    };
+
+    var closeFilterGroup = function($elem) {
+        $elem.slideUp(200);
+    };
 
     var addFilter = function($elem) {
         var $plus = $elem.find('.srch-filterPlus');
@@ -73,12 +69,37 @@ $(function() {
 
     if ('filter' in urlQuery) {
         var filters = urlQuery['filter'].split('|');
-        console.log(filters);
         for (var i in filters) {
-            console.log($('.srch-subFilter [data-filter="'+filters[i]+'"]'));
-            addFilter($('.srch-subFilter [data-filter="'+filters[i]+'"]').parent());
+            var keyval = filters[i].split(':');
+            var $subFilterLi = $('.srch-subFilter [data-filter="'+filters[i]+'"]').parent();
+
+            // special handling for text input of dates
+            if (keyval[0] == 'dateFrom') {
+                $('#filterYearFrom').val(keyval[1]);
+                $subFilterLi = $('#filterYearFrom').parent();
+                $subFilterLi.children('.srch-subFilterLink').attr('data-filter', filters[i]);
+            } else if (keyval[0] == 'dateTo') {
+                $('#filterYearTo').val(keyval[1]);
+                $subFilterLi = $('#filterYearTo').parent();
+                $subFilterLi.children('.srch-subFilterLink').attr('data-filter', filters[i]);
+            }
+
+            addFilter($subFilterLi);
+            if ($subFilterLi.parent().is(':hidden')) {
+                openFilterGroup($subFilterLi.parent());
+            }
         }
     }
+
+    $('.srch-filterTitle').click(function(e) {
+        e.preventDefault();
+        var $subfilter = $(this).parent().find('.srch-subFilter');
+        if ($subfilter.is(':hidden')) {
+            openFilterGroup($subfilter);
+        } else {
+            closeFilterGroup($subfilter);
+        }
+    });
 
     $('.srch-subFilter li').click(function(e) {
         e.preventDefault();
@@ -99,14 +120,15 @@ $(function() {
                 var ff = urlQuery['filter'];
                 var pos = ff.indexOf(dataFilter);
                 var length = dataFilter.length;
+
                 if (pos > -1) {
-                    if (ff.charAt(pos-1) == '|') {
-                        pos--;
+                    if (ff.charAt(pos+length) == '|') {
                         length++;
                     }
                     var filterValue = ff.substr(0, pos) + ff.substr(pos + length);
                     urlQuery['filter'] = filterValue;
                 }
+                console.log(urlQuery);
             }
         }
     });
@@ -116,15 +138,13 @@ $(function() {
     });
 
     $('.srch-filterYearText').keyup(function(e) {
-        if ($(this).val() != '') {
-            if ($(this).parent().hasClass('added') === false) {
-                addFilter($(this).parent());
-            }
-        } else {
-            if ($(this).parent().hasClass('added') === true) {
-                removeFilter($(this).parent());
-            }
+        if ($(this).attr('id') == 'filterYearFrom') {
+            var prefix = 'dateFrom:';
+        } else if ($(this).attr('id') == 'filterYearTo') {
+            var prefix = 'dateTo:';
         }
+        var textVal = prefix + $(this).val();
+        $(this).parent().children('.srch-subFilterLink').attr('data-filter', textVal);
     });
 
 

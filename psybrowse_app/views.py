@@ -200,6 +200,8 @@ def search(request):
                 filters = request.GET.get('filter').split('|')
                 filtersDict = {
                     'date': [],
+                    'dateFrom': '',
+                    'dateTo': '',
                     'type': [],
                     'authors': [],
                 }
@@ -208,13 +210,25 @@ def search(request):
                     keyval = f.split(':')
                     if keyval[0] == 'date':
                         filtersDict['date'].append(keyval[1])
+                    elif keyval[0] == 'dateFrom':
+                        filtersDict['dateFrom'] = keyval[1]
+                    elif keyval[0] == 'dateTo':
+                        filtersDict['dateTo'] = keyval[1]
                     elif keyval[0] == 'type':
                         filtersDict['type'].append(keyval[1])
                     elif keyval[0] == 'author':
                         filtersDict['authors'].append(keyval[1])
 
+                # deal with date ranges first
+                date_from = (filtersDict['dateFrom'] + ' ') if filtersDict['dateFrom'] else ''
+                date_to = (' ' + filtersDict['dateTo']) if filtersDict['dateTo'] else ''
+
+                date_range = ' date:[{:s}TO{:s}]'.format(date_from, date_to)  # e.g., [2012 TO 2014] or [2012 TO] or [TO 2014]
+                filterText += date_range
+
                 # arrange into text to insert into query
-                for cat in filtersDict:
+                filtersList = ['date', 'type', 'authors']
+                for cat in filtersList:
                     if len(filtersDict[cat]) == 1:
                         filterText += ' {:s}:{:s}'.format(cat, filtersDict[cat][0])
                     elif len(filtersDict[cat]) > 1:

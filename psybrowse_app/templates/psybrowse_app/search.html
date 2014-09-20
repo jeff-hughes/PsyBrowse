@@ -17,8 +17,8 @@
     <li>
         <div class="srch-filterTitle">Year</div>
         <ul class="srch-subFilter">
-            <li><label for="filterYearFrom">Start from:</label> <input type="text" id="filterYearFrom" class="srch-filterYearText" /><a href="#" class="srch-subFilterLink"><span class="srch-filterPlus">+</span></a></li>
-            <li><label for="filterYearTo">End at:</label> <input type="text" id="filterYearTo" class="srch-filterYearText" /><a href="#" class="srch-subFilterLink"><span class="srch-filterPlus">+</span></a></li>
+            <li><label for="filterYearFrom">Start from:</label> <input type="text" id="filterYearFrom" class="srch-filterYearText" /><a href="#" class="srch-subFilterLink" data-filter="dateFrom:"><span class="srch-filterPlus">+</span></a></li>
+            <li><label for="filterYearTo">End at:</label> <input type="text" id="filterYearTo" class="srch-filterYearText" /><a href="#" class="srch-subFilterLink" data-filter="dateTo:"><span class="srch-filterPlus">+</span></a></li>
             {% for d in summary.dates_order %}
             <li><a href="#" class="srch-subFilterLink" data-filter="date:{{ d }}">{{ d }} ({{ summary.dates|get_item:d }})<span class="srch-filterPlus">+</span></a></li>
             {% endfor %}
