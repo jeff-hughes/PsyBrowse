@@ -19,6 +19,7 @@ class WhooshArticleIndex(object):
         return Schema(
             index_date=STORED,
             id=ID(stored=True, unique=True),
+            source=KEYWORD,
             type=KEYWORD,
             title=TEXT,
             journal=TEXT,
@@ -70,10 +71,11 @@ class WhooshArticleIndex(object):
 
                 if write:
                     d = article.pub_date
-                    fields = ['id', 'type', 'title', 'journal', 'date', 'authors', 'abstract', 'keywords']
+                    fields = ['id', 'source', 'type', 'title', 'journal', 'date', 'authors', 'abstract', 'keywords']
                     values = [
                         unicode(article.pk),
-                        unicode(article.type),
+                        unicode(article.get_formatted_source()),
+                        unicode(article.get_formatted_type()),
                         unicode(article.title),
                         unicode(article.journal.title),
                         datetime.datetime(d.year, d.month, d.day),

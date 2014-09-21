@@ -225,6 +225,17 @@ class Article(models.Model):
         else:
             return u'{:s}, & {:s}'.format(', '.join(authors_list[:-1]), authors_list[-1])
 
+    def get_formatted_type(self, capitalized=True):
+        """Returns nicely formatted string description of Article type (optionally capitalized)."""
+        article_text = Article.TYPE_DICT[self.type]
+        if capitalized:
+            article_text = article_text.capitalize()
+        return article_text
+
+    def get_formatted_source(self):
+        """Returns nicely formatted string description of Article source."""
+        return Article.SOURCE_DICT[self.source]
+
     def get_url(self):
         """Returns the URL for the Article, directing to the proper source."""
         return Article.URLS[self.source].format(self.source_id)
