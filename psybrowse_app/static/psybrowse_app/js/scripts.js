@@ -47,7 +47,26 @@ $(function() {
     /* SEARCH PAGE */
     $('.srch-sort').change(function(e) {
         var urlString = addQuery({'sort': $(this).val()});
-        window.location = urlString;
+
+        if (jQuery.support.ajax) {
+            $.get('/psybrowse/search/', urlQuery, function(data) {
+                if (!('error' in data)) {
+                    console.log(data);
+                    updateResults(data);
+                } else {
+                    console.log(data);
+                    $('.srch-results').html('<span class="error"><strong>Error:</strong> ' + data.error + '</span>');
+                }
+            }).fail(function() {
+                console.log('AJAX failure');
+                $('.srch-results').html(
+                    '<span class="error"><strong>Error:</strong> There was a problem updating the search results. Please try again.</span>'
+                );
+            });
+            addFilter($(this));
+        } else {
+            window.location = urlString;
+        }
     });
 
     var openFilterGroup = function($elem) {
