@@ -214,11 +214,11 @@ $(function() {
     });
 
     $('.srch-filterYearText').keyup(function(e) {
-        // if user presses Enter, add/remove filter
+        // if user presses Enter, add filter
         if (e.which == 13) {
-            if (($(this).val() != '' && !$(this).parent().hasClass('added')) ||
-                ($(this).val() == '' && $(this).parent().hasClass('added'))) {
-
+            // only triggers if filter has not been added yet; this does not work to remove the filter when input is
+            // blank, because the data-filter attribute will be empty
+            if ($(this).val() != '' && !$(this).parent().hasClass('added')) {
                 $(this).parent().trigger('click');
             }
 
