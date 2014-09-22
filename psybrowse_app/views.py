@@ -242,13 +242,17 @@ def search(request):
                 sort = urllib.unquote_plus(request.GET.get('sort'))
                 real_sort = sort
                 if sort == 'relevance':
-                    real_sort == ''  # search engine should by default provide results according to match percentage
+                    real_sort = ''  # search engine should by default provide results according to match percentage
             else:
                 sort = DEFAULT_SORT
                 real_sort = sort
 
             query = form.cleaned_data['search'] + filterText
-            query_set = Article.search(query).prefetch_related('authors').order_by(real_sort)
+            query_set = Article.search(query).prefetch_related('authors')
+
+            if real_sort:
+                query_set = query_set.order_by(real_sort)
+
             summary = {
                 'dates': defaultdict(int),
                 'types': defaultdict(int),
