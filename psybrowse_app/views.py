@@ -184,6 +184,8 @@ def search(request):
     NUM_RESULTS = 15
     DEFAULT_SORT = '-pub_date'
 
+    ajax = request.is_ajax()  # if AJAX, we return JSON strings instead of redirecting page
+
     if request.GET.get('s'):
         translate = { 'search': urllib.unquote_plus(request.GET.get('s')) }
         form = SearchForm(translate)
@@ -197,7 +199,7 @@ def search(request):
             # deal with filtering results
             filterText = ''
             if request.GET.get('filter'):
-                filters = request.GET.get('filter').split('|')
+                filters = urllib.unquote_plus(request.GET.get('filter')).split('|')
                 filtersDict = {
                     'date': [],
                     'dateFrom': '',
@@ -217,7 +219,7 @@ def search(request):
                     elif keyval[0] == 'type':
                         filtersDict['type'].append(keyval[1])
                     elif keyval[0] == 'author':
-                        filtersDict['authors'].append(keyval[1])
+                        filtersDict['authors'].append('"{:s}"'.format(keyval[1]))
 
                 # deal with date ranges first
                 date_from = (filtersDict['dateFrom'] + ' ') if filtersDict['dateFrom'] else ''
@@ -237,7 +239,7 @@ def search(request):
 
             # deal with sorting results
             if request.GET.get('sort'):
-                sort = request.GET.get('sort')
+                sort = urllib.unquote_plus(request.GET.get('sort'))
                 real_sort = sort
                 if sort == 'relevance':
                     real_sort = ''  # search engine should by default provide results according to match percentage
@@ -266,7 +268,7 @@ def search(request):
                     summary['types'][Article.TYPE_DICT[article.type].capitalize()] += 1
 
                     authors = article.authors.all()
-                    author_list.append([(a.pk, a.get_name()) for a in authors])
+                    author_list.append(authors)
                     for author in authors:
                         summary['authors'][author.get_name()] += 1
 
@@ -286,28 +288,86 @@ def search(request):
                 except EmptyPage:
                     # if page is out of range, deliver last page of results
                     results = paginator.page(paginator.num_pages)
+
+                paginator_dict = {
+                    'page_num': results.number,
+                    'num_pages': results.paginator.num_pages,
+                }
+                paginator_dict['has_previous'] = False if results.number == 1 else True
+                paginator_dict['has_next'] = False if results.number == results.paginator.num_pages else True
+                paginator_dict['prev_page_num'] = (results.previous_page_number()
+                    if paginator_dict['has_previous'] else None)
+                paginator_dict['next_page_num'] = (results.next_page_number()
+                    if paginator_dict['has_previous'] else None)
+
+                results_details = []
+                # go through the single page of results and pull out relevant data for each Article
+                for result, authors in results:
+                    authors_list = []
+
+                    for k, a in enumerate(authors):
+                        # properly puts in separators between authors, e.g., Adams, Aaronson & Abrams
+                        if len(authors) == 1:
+                            sep = ''
+                        elif len(authors) == 2:
+                            sep = ' & ' if k == 0 else ''
+                        else:
+                            if k == len(authors)-2:
+                                sep = ' & '
+                            elif k == len(authors)-1:
+                                sep = ''
+                            else:
+                                sep = ', '
+
+                        authors_list.append({
+                            'id': a.pk,
+                            'name': a.get_name(),
+                            'url': reverse('author detail', args=(a.pk,)),
+                            'separator': sep,
+                        })
+
+                    results_details.append({
+                        'id': result.pk,
+                        'title': result.title,
+                        'pub_date': result.pub_date.strftime('%Y'),
+                        'url': reverse('article detail', args=(result.pk,)),
+                        'authors': authors_list,
+                    })
+
             else:
-                results = None
+                results_details = None
+                paginator_dict = {}
 
             is_subscribed = _is_subscribed(request, Subscription.SEARCH_STRING, form.cleaned_data['search'])
 
-            return render(request, 'psybrowse_app/search.html', {
-                'num_results': query_set.count(),
+            return_dict = {
+                'num_results': '{:,d}'.format(query_set.count()),
                 'summary': summary,
                 'search_term': query,
                 'search_term_url': urllib.quote_plus(query),
                 'sort': sort,
-                'results': results,
+                'results': results_details,
+                'paginator': paginator_dict,
                 'is_subscribed': is_subscribed,
-            })
+            }
+
+            if not ajax:
+                return render(request, 'psybrowse_app/search.html', return_dict)
+            else:
+                return HttpResponse(json.dumps(return_dict), mimetype='application/json')
 
         else:
             error = 'Invalid search parameters.'
 
-    return render(request, 'psybrowse_app/search.html', {
+    return_dict = {
         'error': error,
-        'articles_authors': [],
-    })
+        'results': [],
+    }
+
+    if not ajax:
+        return render(request, 'psybrowse_app/search.html', return_dict)
+    else:
+        return HttpResponse(json.dumps(return_dict), mimetype='application/json')
 
 
 def adv_search(request):
