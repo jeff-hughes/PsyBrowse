@@ -5,7 +5,7 @@
 {% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
 
 {% block sidebar %}
-{% if num_results %}<p class="srch-numResults">{{ num_results }} result{{ num_results|pluralize }}</p>{% endif %}
+{% if num_results %}<p class="srch-numResults">{{ num_results}} results</p>{% endif %}
 <p class="srch-sortHead">Sort by:</p>
 <select class="srch-sort">
     <option value="-pub_date"{% if sort == '-pub_date' %}selected="selected"{% endif %}>Year: Most recent first</option>
@@ -73,75 +73,49 @@
             {% endif %}
         </div>
         <h2>Search:</h2>
+        {% if error %}<span class="error"><strong>Error:</strong> {{ error }}</span>{% endif %}
         {% if search_term %}Search term: {{ search_term }}<br /><br />{% endif %}
-        <div class="srch-results">
-            {% if error %}<span class="error"><strong>Error:</strong> {{ error }}</span>{% endif %}
-            {% for article in results %}
-                <div class="srch-result clearfix">
-                    <div class="srch-resultInfo">
-                        <img src="{% static 'psybrowse_app/img/edit_copy.png' %}" alt="Article" title="Article" class="srch-resultTypeImg" />
-                        <h2 class="srch-resultTitle"><a href="{% url 'article detail' article.id %}">{{ article.title|escape }}</a></h2>
-                        <span class="srch-resultYear">({{ article.pub_date }})</span>
-                        <span class="srch-resultAuthors">
-                            {% for author in article.authors %}<a href="{{ author.url }}">{{ author.name|escape }}</a>{{ author.separator|escape }}{% endfor %}
-                        </span>
-                    </div>
-                    <!--<div class="srch-meta">
-                        <span class="srch-star"><img src="img/star.png" title="This article has been peer reviewed" /></span>
-                        <span class="srch-methodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
-                        <span class="srch-contribution" title="Contribution to Literature" style="background: #dfd300">3.2</span>
-                        <div class="srch-additional">
-                            <ul>
-                                <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Abstract</a></li>
-                                <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Connections</a></li>
-                            </ul>
-                        </div>
-                    </div>-->
+        {% for article, author_list in results %}
+            <div class="srch-result clearfix">
+                <div class="srch-resultInfo">
+                    <img src="{% static 'psybrowse_app/img/edit_copy.png' %}" alt="Article" title="Article" class="srch-resultTypeImg" />
+                    <h2 class="srch-resultTitle"><a href="{% url 'article detail' article.id %}">{{ article.title|escape }}</a></h2>
+                    <span class="srch-resultYear">({{ article.pub_date|date:"Y" }})</span>
+                    <span class="srch-resultAuthors">
+                        {% if author_list|length == 1 %}
+                            {% for author_id, name in author_list %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endfor %}
+                        {% elif author_list|length == 2 %}
+                            {% for author_id, name in author_list %}
+                                {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endif %}
+                            {% endfor %}
+                        {% else %}
+                            {% for author_id, name in author_list %}
+                                {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>, {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </span>
                 </div>
-            {% empty %}
-                <p>Sorry, your search returned no results.</p>
-            {% endfor %}
-        </div>
-        <div class="srch-pagination">
-            {% if results %}
-            {% if paginator.has_previous %}<a href="?s={{ search_term_url }}&page={{ paginator.prev_page_num }}">&lt; previous</a>{% endif %}
-            <span class="srch-pageCurrent">Page {{ paginator.page_num }} of {{ paginator.num_pages }}</span>
-            {% if paginator.has_next %}<a href="?s={{ search_term_url }}&page={{ paginator.next_page_num }}">next &gt;</a>{% endif %}
-            {% endif %}
-        </div>
-    </section>
-{% endblock %}
-
-{% block scripts %}
-<script src="{% static 'psybrowse_app/js/libs/handlebars-v2.0.0.min.js' %}"></script>
-
-<script id="srch_result_template" type="text/x-handlebars-template">{% verbatim %}
-    <div class="srch-result clearfix">
-        <div class="srch-resultInfo">
-            <img src="{% endverbatim %}{% static 'psybrowse_app/img/edit_copy.png' %}{% verbatim %}" alt="Article" title="Article" class="srch-resultTypeImg" />
-            <h2 class="srch-resultTitle"><a href="{{url}}">{{title}}</a></h2>
-            <span class="srch-resultYear">({{pub_date}})</span>
-            <span class="srch-resultAuthors">
-                {{#each authors}}<a href="{{this.url}}">{{this.name}}</a>{{this.separator}}{{/each}}
-            </span>
-        </div>
-        <!--<div class="srch-meta">
-            <span class="srch-star"><img src="{% endverbatim %}{% static 'psybrowse_app/img/star.png' %}{% verbatim %}" title="This article has been peer reviewed" /></span>
-            <span class="srch-methodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
-            <span class="srch-contribution" title="Contribution to Literature" style="background: #dfd300">3.2</span>
-            <div class="srch-additional">
-                <ul>
-                    <li><a href="#"><img src="{% endverbatim %}{% static 'psybrowse_app/img/arrow_right.png' %}{% verbatim %}" class="srch-arrow" />Abstract</a></li>
-                    <li><a href="#"><img src="{% endverbatim %}{% static 'psybrowse_app/img/arrow_right.png' %}{% verbatim %}" class="srch-arrow" />Connections</a></li>
-                </ul>
+                <!--<div class="srch-meta">
+                    <span class="srch-star"><img src="img/star.png" title="This article has been peer reviewed" /></span>
+                    <span class="srch-methodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
+                    <span class="srch-contribution" title="Contribution to Literature" style="background: #dfd300">3.2</span>
+                    <div class="srch-additional">
+                        <ul>
+                            <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Abstract</a></li>
+                            <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Connections</a></li>
+                        </ul>
+                    </div>
+                </div>-->
             </div>
-        </div>-->
-    </div>
-{% endverbatim %}</script>
-
-<script id="srch_pagination_template" type="text/x-handlebars-template">{% verbatim %}
-{{#if paginator.has_previous}}<a href="?s={{search_term_url}}&page={{paginator.prev_page_num}}">&lt; previous</a>{{/if}}
-<span class="srch-pageCurrent">Page {{paginator.page_num}} of {{paginator.num_pages}}</span>
-{{#if paginator.has_next}}<a href="?s={{search_term_url}}&page={{paginator.next_page_num}}">next &gt;</a>{{/if}}
-{% endverbatim %}</script>
+        {% empty %}
+            <div>Sorry, your search returned no results.</div>
+        {% endfor %}
+        {% if results %}
+        <div class="srch-pagination">
+            {% if results.has_previous %}<a href="?s={{ search_term_url }}&page={{ results.previous_page_number }}">&lt; previous</a>{% endif %}
+            <span class="srch-pageCurrent">Page {{ results.number }} of {{ results.paginator.num_pages }}</span>
+            {% if results.has_next %}<a href="?s={{ search_term_url }}&page={{ results.next_page_number }}">next &gt;</a>{% endif %}
+        </div>
+        {% endif %}
+    </section>
 {% endblock %}
