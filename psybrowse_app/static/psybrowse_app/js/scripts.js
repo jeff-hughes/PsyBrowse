@@ -30,7 +30,7 @@ $(function() {
 
     var getQuery = function(includeEmpty) {
         includeEmpty = typeof includeEmpty !== 'undefined' ? includeEmpty : false;
-        
+
         var urlString = '?';
         for (var key in urlQuery) {
             if (urlQuery[key] !== '' || includeEmpty) {
@@ -108,21 +108,68 @@ $(function() {
         }
     });
 
+    var updateResults = function(data) {
+        // update search results list
+        var resultsTemplateSrc = $('#srch_result_template').html();
+        var resultsTemplate = Handlebars.compile(resultsTemplateSrc);
+        var resultsNewHtml = '';
+        if ('results' in data && data.results !== null) {
+            for (r in data.results) {
+                resultsNewHtml += resultsTemplate(data.results[r]);
+            }
+        } else {
+            resultsNewHtml = '<p>Sorry, your search returned no results.</p>';
+        }
+        $('.srch-results').html(resultsNewHtml);
+        $('.hdr-searchInput').val(data.search_term);
+
+        // update pagination
+        if ('results' in data && data.results !== null) {
+            var paginationTemplateSrc = $('#srch_pagination_template').html();
+            var paginationTemplate = Handlebars.compile(paginationTemplateSrc);
+            var paginationNewHtml = paginationTemplate(data);
+            $('.srch-pagination').html(paginationNewHtml);
+        } else {
+            $('.srch-pagination').html('');
+        }
+
+        // update summary data
+        var num_pluralize = (data.num_results == 1) ? '' : 's';
+        $('.srch-numResults').html(data.num_results+' result'+num_pluralize);
+    };
+
     $('.srch-subFilter li').click(function(e) {
         e.preventDefault();
         var dataFilter = $(this).children('[data-filter]').attr('data-filter');
 
         if ($(this).hasClass('added') === false) {
-            //addFilter($(this));
             if ('filter' in urlQuery && urlQuery['filter'] != '') {
                 var filterValue = urlQuery['filter'] + '|' + dataFilter;
             } else {
                 var filterValue = dataFilter;
             }
             var urlString = addQuery({'filter': filterValue});
-            window.location = urlString;
+
+            if (jQuery.support.ajax) {
+                $.get('/psybrowse/search/', urlQuery, function(data) {
+                    if (!('error' in data)) {
+                        console.log(data);
+                        updateResults(data);
+                    } else {
+                        console.log(data);
+                        $('.srch-results').html('<span class="error"><strong>Error:</strong> ' + data.error + '</span>');
+                    }
+                }).fail(function() {
+                    console.log('AJAX failure');
+                    $('.srch-results').html(
+                        '<span class="error"><strong>Error:</strong> There was a problem updating the search results. Please try again.</span>'
+                    );
+                });
+                addFilter($(this));
+            } else {
+                window.location = urlString;
+            }
         } else {
-            removeFilter($(this));
             if ('filter' in urlQuery) {
                 var ff = urlQuery['filter'];
                 var pos = ff.indexOf(dataFilter);
@@ -139,7 +186,26 @@ $(function() {
                     urlQuery['filter'] = filterValue;
                 }
             }
-            window.location = getQuery();
+
+            if (jQuery.support.ajax) {
+                $.get('/psybrowse/search/', urlQuery, function(data) {
+                    if (!('error' in data)) {
+                        console.log(data);
+                        updateResults(data);
+                    } else {
+                        console.log(data);
+                        $('.srch-results').html('<span class="error"><strong>Error:</strong> ' + data.error + '</span>');
+                    }
+                }).fail(function() {
+                    console.log('AJAX failure');
+                    $('.srch-results').html(
+                        '<span class="error"><strong>Error:</strong> There was a problem updating the search results. Please try again.</span>'
+                    );
+                });
+                removeFilter($(this));
+            } else {
+                window.location = getQuery();
+            }
         }
     });
 
@@ -148,13 +214,24 @@ $(function() {
     });
 
     $('.srch-filterYearText').keyup(function(e) {
-        if ($(this).attr('id') == 'filterYearFrom') {
-            var prefix = 'dateFrom:';
-        } else if ($(this).attr('id') == 'filterYearTo') {
-            var prefix = 'dateTo:';
+        // if user presses Enter, add/remove filter
+        if (e.which == 13) {
+            if (($(this).val() != '' && !$(this).parent().hasClass('added')) ||
+                ($(this).val() == '' && $(this).parent().hasClass('added'))) {
+
+                $(this).parent().trigger('click');
+            }
+
+        // otherwise, update data-filter attribute with current value of input
+        } else {
+            if ($(this).attr('id') == 'filterYearFrom') {
+                var prefix = 'dateFrom:';
+            } else if ($(this).attr('id') == 'filterYearTo') {
+                var prefix = 'dateTo:';
+            }
+            var textVal = prefix + $(this).val();
+            $(this).parent().children('.srch-subFilterLink').attr('data-filter', textVal);
         }
-        var textVal = prefix + $(this).val();
-        $(this).parent().children('.srch-subFilterLink').attr('data-filter', textVal);
     });
 
 
@@ -218,7 +295,9 @@ $(function() {
         });
     };
 
-    $('.subbtn-subscribe[data-type]').bind('click', subscribeHandler);
-    $('.subbtn-unsubscribe[data-type]').bind('click', unsubscribeHandler);
+    if (jQuery.support.ajax) {
+        $('.subbtn-subscribe[data-type]').bind('click', subscribeHandler);
+        $('.subbtn-unsubscribe[data-type]').bind('click', unsubscribeHandler);
+    }
 
 });
