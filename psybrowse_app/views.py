@@ -31,6 +31,18 @@ def _is_subscribed(request, sub_type, sub_item):
     return is_subscribed
 
 
+def _format_paginator_dict(page):
+    """Takes a Django paginator.page and returns a dictionary, compatible with JSON."""
+    paginator_dict = {}
+    paginator_dict['page_num'] = page.number
+    paginator_dict['num_pages'] = page.paginator.num_pages
+    paginator_dict['has_previous'] = False if page.number == 1 else True
+    paginator_dict['has_next'] = False if page.number == page.paginator.num_pages else True
+    paginator_dict['prev_page_num'] = (page.previous_page_number() if paginator_dict['has_previous'] else None)
+    paginator_dict['next_page_num'] = (page.next_page_number() if paginator_dict['has_previous'] else None)
+    return paginator_dict
+
+
 def _format_article_detail(subscription, article):
     """
     Takes raw Subscription and Article objects and returns a formatted tuple: (subscription type, subscription display,
@@ -90,7 +102,31 @@ def index(request):
 
         articles.sort(key=lambda x: x[3].pub_date, reverse=True)  # sort descending by publication date
 
-        count = len(articles)
+        """sub_queries = Article.objects.none()
+        for sub in subscriptions:
+            query = Article.search_by_subscription(sub).prefetch_related('authors')
+            sub_queries = sub_queries | query  # append each query
+
+        sub_queries = sub_queries.distinct().order_by('-pub_date')"""
+
+        paginator = Paginator(articles, NUM_ARTICLES, orphans=3)
+
+        page = request.GET.get('page')
+        try:
+            results = paginator.page(page)
+        except PageNotAnInteger:
+            # if page is not an integer, deliver first page
+            results = paginator.page(1)
+        except EmptyPage:
+            # if page is out of range, deliver last page of results
+            results = paginator.page(paginator.num_pages)
+
+        paginator_dict = _format_paginator_dict(results)
+
+        """for r in results:
+            articles.append(_format_article_detail(sub, r))  # TODO: Can't seem to get subscription info this way"""
+
+        """count = len(articles)
         if count < NUM_ARTICLES:
             # add more recent articles to fill up newsfeed, if subscriptions are not enough
             extras = Article.objects.prefetch_related('authors').order_by('-pub_date')
@@ -100,9 +136,9 @@ def index(request):
                     seen.add(result.pk)
                     count += 1
                 if count >= NUM_ARTICLES:
-                    break
+                    break"""
 
-        articles = articles[:NUM_ARTICLES]  # slice feed down to proper size
+        #articles = articles[:NUM_ARTICLES]  # slice feed down to proper size
 
     # if user is not registered/logged in, we show NUM_ARTICLES of the most recent articles
     else:
@@ -111,10 +147,11 @@ def index(request):
             articles.append(_format_article_detail('recent', result))
 
     return render(request, 'psybrowse_app/index.html', {
-        'articles': articles, 
+        'articles': results,
             # end result should be: [(sub_type, sub_item_id, sub_display, article1, [(auth1), (auth2), ...]),
             # (sub_type, sub_item_id, sub_display, article2, [(auth1), (auth2), ...]), ...]
             # if article is not from a subscription, 'sub_info' field will be the string 'recent'
+        'paginator': paginator_dict,
     })
 
 
@@ -289,16 +326,7 @@ def search(request):
                     # if page is out of range, deliver last page of results
                     results = paginator.page(paginator.num_pages)
 
-                paginator_dict = {
-                    'page_num': results.number,
-                    'num_pages': results.paginator.num_pages,
-                }
-                paginator_dict['has_previous'] = False if results.number == 1 else True
-                paginator_dict['has_next'] = False if results.number == results.paginator.num_pages else True
-                paginator_dict['prev_page_num'] = (results.previous_page_number()
-                    if paginator_dict['has_previous'] else None)
-                paginator_dict['next_page_num'] = (results.next_page_number()
-                    if paginator_dict['has_previous'] else None)
+                paginator_dict = _format_paginator_dict(results)
 
                 results_details = []
                 # go through the single page of results and pull out relevant data for each Article
