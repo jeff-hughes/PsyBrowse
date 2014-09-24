@@ -39,7 +39,7 @@ def _format_paginator_dict(page):
     paginator_dict['has_previous'] = False if page.number == 1 else True
     paginator_dict['has_next'] = False if page.number == page.paginator.num_pages else True
     paginator_dict['prev_page_num'] = (page.previous_page_number() if paginator_dict['has_previous'] else None)
-    paginator_dict['next_page_num'] = (page.next_page_number() if paginator_dict['has_previous'] else None)
+    paginator_dict['next_page_num'] = (page.next_page_number() if paginator_dict['has_next'] else None)
     return paginator_dict
 
 
@@ -84,10 +84,88 @@ def index(request):
     NUM_ARTICLES = 15
     articles = []
 
+    all_articles = Article.objects.all()
+    paginator = Paginator(all_articles, NUM_ARTICLES, orphans=3)
+
+    page = request.GET.get('page')
+    try:
+        feed_page = paginator.page(page)
+    except PageNotAnInteger:
+        # if page is not an integer, deliver first page
+        feed_page = paginator.page(1)
+    except EmptyPage:
+        # if page is out of range, deliver last page of results
+        feed_page = paginator.page(paginator.num_pages)
+
+    paginator_dict = _format_paginator_dict(feed_page)
+
+    start_index = feed_page.start_index()
+    end_index = feed_page.end_index()
+
     # if user is logged in, we get articles for all their subscriptions first, then top up any remaining space with
     # other recent articles
     if request.user.is_authenticated():
+        def _make_feed_list(query_set, used_set=None, max=None):
+            """
+            Takes a list of tuples containing subscriptions and QuerySets, and formats it into a list of distinct
+            Articles, each contained in a tuple formatted by _format_article_detail(). The list is then sorted by
+            publication date (descending).
+
+            The 'used_set' parameter can also be used to feed in previously used Article IDs; the 'max' parameter can be
+            used to limit the number of Articles returned (not counting ones from 'used_set').
+
+            Returns a tuple with the feed list and the set of used Article IDs.
+            """
+            if used_set is None:
+                used_set = set()
+            feed_list = []
+            count = 0
+
+            for sub, query in query_set:
+                # adds result to 'subs_list' if the result is not a duplicate from a previous subscription
+                for result in query:
+                    if result.pk not in used_set:
+                        feed_list.append(_format_article_detail(sub, result))
+                        used_set.add(result.pk)
+                        count += 1
+                    if max is not None and count >= max:
+                        break
+            feed_list.sort(key=lambda x: x[3].pub_date, reverse=True)  # sort descending by publication date
+            return (feed_list, used_set)
+
+
         subscriptions = request.user.userprofile.subscription_set.all()
+
+        query_list = []
+        sub_queries = Article.objects.none()
+        for sub in subscriptions:
+            query = Article.search_by_subscription(sub).prefetch_related('authors')
+            query_list.append((sub, query))
+            sub_queries = sub_queries | query  # join all queries together
+        sub_q_count = sub_queries.distinct().count()
+
+        # if we've gone past the subscriptions, go into recent articles
+        if start_index > sub_q_count:
+            recent = Article.objects.prefetch_related('authors').order_by('-pub_date')[start_index:end_index]
+            for result in recent:
+                articles.append(_format_article_detail('recent', result))
+
+        # if the end of the subscriptions occurs part-way through the current page
+        elif end_index > sub_q_count:
+            subs_list, used_set = _make_feed_list(query_list)
+            articles = subs_list[start_index:end_index]
+
+            extras = [('recent', Article.objects.prefetch_related('authors').order_by('-pub_date'))]
+            extras_list, used_set2 = _make_feed_list(extras, used_set, max=NUM_ARTICLES - len(articles))
+
+            articles = articles + extras_list
+
+        # display subscriptions
+        else:
+            subs_list, used_set = _make_feed_list(query_list)
+            articles = subs_list[start_index:end_index]
+
+        """subscriptions = request.user.userprofile.subscription_set.all()
 
         seen = set()  # avoid duplicates
         count_q = 0
@@ -102,31 +180,7 @@ def index(request):
 
         articles.sort(key=lambda x: x[3].pub_date, reverse=True)  # sort descending by publication date
 
-        """sub_queries = Article.objects.none()
-        for sub in subscriptions:
-            query = Article.search_by_subscription(sub).prefetch_related('authors')
-            sub_queries = sub_queries | query  # append each query
-
-        sub_queries = sub_queries.distinct().order_by('-pub_date')"""
-
-        paginator = Paginator(articles, NUM_ARTICLES, orphans=3)
-
-        page = request.GET.get('page')
-        try:
-            results = paginator.page(page)
-        except PageNotAnInteger:
-            # if page is not an integer, deliver first page
-            results = paginator.page(1)
-        except EmptyPage:
-            # if page is out of range, deliver last page of results
-            results = paginator.page(paginator.num_pages)
-
-        paginator_dict = _format_paginator_dict(results)
-
-        """for r in results:
-            articles.append(_format_article_detail(sub, r))  # TODO: Can't seem to get subscription info this way"""
-
-        """count = len(articles)
+        count = len(articles)
         if count < NUM_ARTICLES:
             # add more recent articles to fill up newsfeed, if subscriptions are not enough
             extras = Article.objects.prefetch_related('authors').order_by('-pub_date')
@@ -136,18 +190,18 @@ def index(request):
                     seen.add(result.pk)
                     count += 1
                 if count >= NUM_ARTICLES:
-                    break"""
+                    break
 
-        #articles = articles[:NUM_ARTICLES]  # slice feed down to proper size
+        articles = articles[:NUM_ARTICLES]  # slice feed down to proper size"""
 
     # if user is not registered/logged in, we show NUM_ARTICLES of the most recent articles
     else:
-        query = Article.objects.prefetch_related('authors').order_by('-pub_date')[:NUM_ARTICLES]
-        for result in query:
+        recent = Article.objects.prefetch_related('authors').order_by('-pub_date')[start_index:end_index]
+        for result in recent:
             articles.append(_format_article_detail('recent', result))
 
     return render(request, 'psybrowse_app/index.html', {
-        'articles': results,
+        'articles': articles,
             # end result should be: [(sub_type, sub_item_id, sub_display, article1, [(auth1), (auth2), ...]),
             # (sub_type, sub_item_id, sub_display, article2, [(auth1), (auth2), ...]), ...]
             # if article is not from a subscription, 'sub_info' field will be the string 'recent'

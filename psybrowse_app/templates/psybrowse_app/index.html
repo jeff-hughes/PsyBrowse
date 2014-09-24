@@ -9,41 +9,50 @@
     <section class="str-content indx-content">
         {% if user.is_authenticated %}<h2>News feed</h2>{% else %}<h2>Latest Articles:</h2>
         <p>Want personalized results? <a href="{% url 'register' %}">Register today!</a></p>{% endif %}
-        {% for sub_type, sub_display, sub_item_url, article, author_list in articles %}
-            <div class="indx-result clearfix">
-                <div class="indx-resultInfo">
-                    <img src="{% static 'psybrowse_app/img/edit_copy.png' %}" alt="Article" title="Article" class="indx-resultTypeImg" />
-                    <h2 class="indx-resultTitle"><a href="{% url 'article detail' article.id %}">{{ article.title|escape }}</a></h2>
-                    <span class="indx-resultYear">({{ article.pub_date|date:"Y" }})</span>
-                    <span class="indx-resultAuthors">
-                        {% if author_list|length == 1 %}
-                            {% for author_id, name in author_list %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endfor %}
-                        {% elif author_list|length == 2 %}
-                            {% for author_id, name in author_list %}
-                                {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endif %}
-                            {% endfor %}
-                        {% else %}
-                            {% for author_id, name in author_list %}
-                                {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>, {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    </span>
+        <div class="indx-feed">
+            {% for sub_type, sub_display, sub_item_url, article, author_list in articles %}
+                <div class="indx-result clearfix">
+                    <div class="indx-resultInfo">
+                        <img src="{% static 'psybrowse_app/img/edit_copy.png' %}" alt="Article" title="Article" class="indx-resultTypeImg" />
+                        <h2 class="indx-resultTitle"><a href="{% url 'article detail' article.id %}">{{ article.title|escape }}</a></h2>
+                        <span class="indx-resultYear">({{ article.pub_date|date:"Y" }})</span>
+                        <span class="indx-resultAuthors">
+                            {% if author_list|length == 1 %}
+                                {% for author_id, name in author_list %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endfor %}
+                            {% elif author_list|length == 2 %}
+                                {% for author_id, name in author_list %}
+                                    {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {% for author_id, name in author_list %}
+                                    {% if forloop.last %} &amp; <a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>{% else %}<a href="{% url 'author detail' author_id %}">{{ name|escape }}</a>, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="indx-resultMeta">
+                        <span>({% if sub_type == None %}{{ sub_display }}{% else %}{{ sub_type }} sub.{% endif %})</span>
+                        <!--<span class="star"><img src="img/star.png" title="This article has been peer reviewed" /></span>
+                        <span class="methodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
+                        <span class="contribution" title="Contribution to Literature" style="background: #dfd300">3.2</span>
+                        <div class="additional">
+                            <ul>
+                                <li><a href="#"><img src="img/arrow_right.png" class="arrow" />Abstract</a></li>
+                                <li><a href="#"><img src="img/arrow_right.png" class="arrow" />Connections</a></li>
+                            </ul>
+                        </div>-->
+                    </div>
                 </div>
-                <div class="indx-resultMeta">
-                    <span>({% if sub_type == None %}{{ sub_display }}{% else %}{{ sub_type }} sub.{% endif %})</span>
-                    <!--<span class="star"><img src="img/star.png" title="This article has been peer reviewed" /></span>
-                    <span class="methodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
-                    <span class="contribution" title="Contribution to Literature" style="background: #dfd300">3.2</span>
-                    <div class="additional">
-                        <ul>
-                            <li><a href="#"><img src="img/arrow_right.png" class="arrow" />Abstract</a></li>
-                            <li><a href="#"><img src="img/arrow_right.png" class="arrow" />Connections</a></li>
-                        </ul>
-                    </div>-->
-                </div>
-            </div>
-        {% empty %}
-            <div>No articles are available.</div>
-        {% endfor %}
+            {% empty %}
+                <div>No articles are available.</div>
+            {% endfor %}
+        </div>
+        <div class="srch-pagination">
+            {% if articles %}
+            {% if paginator.has_previous %}<a href="?page={{ paginator.prev_page_num }}">&lt; previous</a>{% endif %}
+            <span class="srch-pageCurrent">Page {{ paginator.page_num }} of {{ paginator.num_pages }}</span>
+            {% if paginator.has_next %}<a href="?page={{ paginator.next_page_num }}">next &gt;</a>{% endif %}
+            {% endif %}
+        </div>
     </section>
 {% endblock %}
