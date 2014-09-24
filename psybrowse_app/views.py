@@ -31,6 +31,18 @@ def _is_subscribed(request, sub_type, sub_item):
     return is_subscribed
 
 
+def _format_paginator_dict(page):
+    """Takes a Django paginator.page and returns a dictionary, compatible with JSON."""
+    paginator_dict = {}
+    paginator_dict['page_num'] = page.number
+    paginator_dict['num_pages'] = page.paginator.num_pages
+    paginator_dict['has_previous'] = False if page.number == 1 else True
+    paginator_dict['has_next'] = False if page.number == page.paginator.num_pages else True
+    paginator_dict['prev_page_num'] = (page.previous_page_number() if paginator_dict['has_previous'] else None)
+    paginator_dict['next_page_num'] = (page.next_page_number() if paginator_dict['has_next'] else None)
+    return paginator_dict
+
+
 def _format_article_detail(subscription, article):
     """
     Takes raw Subscription and Article objects and returns a formatted tuple: (subscription type, subscription display,
@@ -43,9 +55,35 @@ def _format_article_detail(subscription, article):
         sub_info = (None, subscription, None)
 
     authors = article.authors.all()
-    authors_list = [(a.pk, a.get_name()) for a in authors]
 
-    return (sub_info[0], sub_info[1], sub_info[2], article, authors_list)
+    return (sub_info[0], sub_info[1], sub_info[2], article, authors)
+
+def _format_authors_list(authors):
+    """
+    Takes list of Authors, and returns a list of Author details: id, name, url, and a separator to properly string
+    together author names (e.g., Adams, Aaronson & Abrams).
+    """
+    authors_list = []
+    for k, a in enumerate(authors):
+        if len(authors) == 1:
+            sep = ''
+        elif len(authors) == 2:
+            sep = ' & ' if k == 0 else ''
+        else:
+            if k == len(authors)-2:
+                sep = ' & '
+            elif k == len(authors)-1:
+                sep = ''
+            else:
+                sep = ', '
+
+        authors_list.append({
+            'id': a.pk,
+            'name': a.get_name(),
+            'url': reverse('author detail', args=(a.pk,)),
+            'separator': sep,
+        })
+    return authors_list
 
 
 def _format_subscription_detail(subscription):
@@ -72,10 +110,90 @@ def index(request):
     NUM_ARTICLES = 15
     articles = []
 
+    ajax = request.is_ajax()  # if AJAX, we return JSON strings instead of redirecting page
+
+    all_articles = Article.objects.all()
+    paginator = Paginator(all_articles, NUM_ARTICLES, orphans=3)
+
+    page = request.GET.get('page')
+    try:
+        feed_page = paginator.page(page)
+    except PageNotAnInteger:
+        # if page is not an integer, deliver first page
+        feed_page = paginator.page(1)
+    except EmptyPage:
+        # if page is out of range, deliver last page of results
+        feed_page = paginator.page(paginator.num_pages)
+
+    paginator_dict = _format_paginator_dict(feed_page)
+
+    start_index = feed_page.start_index()
+    end_index = feed_page.end_index()
+
     # if user is logged in, we get articles for all their subscriptions first, then top up any remaining space with
     # other recent articles
     if request.user.is_authenticated():
+        def _make_feed_list(query_set, used_set=None, max=None):
+            """
+            Takes a list of tuples containing subscriptions and QuerySets, and formats it into a list of distinct
+            Articles, each contained in a tuple formatted by _format_article_detail(). The list is then sorted by
+            publication date (descending).
+
+            The 'used_set' parameter can also be used to feed in previously used Article IDs; the 'max' parameter can be
+            used to limit the number of Articles returned (not counting ones from 'used_set').
+
+            Returns a tuple with the feed list and the set of used Article IDs.
+            """
+            if used_set is None:
+                used_set = set()
+            feed_list = []
+            count = 0
+
+            for sub, query in query_set:
+                # adds result to 'subs_list' if the result is not a duplicate from a previous subscription
+                for result in query:
+                    if result.pk not in used_set:
+                        feed_list.append(_format_article_detail(sub, result))
+                        used_set.add(result.pk)
+                        count += 1
+                    if max is not None and count >= max:
+                        break
+            feed_list.sort(key=lambda x: x[3].pub_date, reverse=True)  # sort descending by publication date
+            return (feed_list, used_set)
+
+
         subscriptions = request.user.userprofile.subscription_set.all()
+
+        query_list = []
+        sub_queries = Article.objects.none()
+        for sub in subscriptions:
+            query = Article.search_by_subscription(sub).prefetch_related('authors')
+            query_list.append((sub, query))
+            sub_queries = sub_queries | query  # join all queries together
+        sub_q_count = sub_queries.distinct().count()
+
+        # if we've gone past the subscriptions, go into recent articles
+        if start_index > sub_q_count:
+            recent = Article.objects.prefetch_related('authors').order_by('-pub_date')[start_index:end_index]
+            for result in recent:
+                articles.append(_format_article_detail('recent', result))
+
+        # if the end of the subscriptions occurs part-way through the current page
+        elif end_index > sub_q_count:
+            subs_list, used_set = _make_feed_list(query_list)
+            articles = subs_list[start_index:end_index]
+
+            extras = [('recent', Article.objects.prefetch_related('authors').order_by('-pub_date'))]
+            extras_list, used_set2 = _make_feed_list(extras, used_set, max=NUM_ARTICLES - len(articles))
+
+            articles = articles + extras_list
+
+        # display subscriptions
+        else:
+            subs_list, used_set = _make_feed_list(query_list)
+            articles = subs_list[start_index:end_index]
+
+        """subscriptions = request.user.userprofile.subscription_set.all()
 
         seen = set()  # avoid duplicates
         count_q = 0
@@ -102,20 +220,41 @@ def index(request):
                 if count >= NUM_ARTICLES:
                     break
 
-        articles = articles[:NUM_ARTICLES]  # slice feed down to proper size
+        articles = articles[:NUM_ARTICLES]  # slice feed down to proper size"""
 
     # if user is not registered/logged in, we show NUM_ARTICLES of the most recent articles
     else:
-        query = Article.objects.prefetch_related('authors').order_by('-pub_date')[:NUM_ARTICLES]
-        for result in query:
+        recent = Article.objects.prefetch_related('authors').order_by('-pub_date')[start_index:end_index]
+        for result in recent:
             articles.append(_format_article_detail('recent', result))
 
-    return render(request, 'psybrowse_app/index.html', {
-        'articles': articles, 
-            # end result should be: [(sub_type, sub_item_id, sub_display, article1, [(auth1), (auth2), ...]),
-            # (sub_type, sub_item_id, sub_display, article2, [(auth1), (auth2), ...]), ...]
-            # if article is not from a subscription, 'sub_info' field will be the string 'recent'
-    })
+
+    articles_details = []
+    # go through the single page of articles and pull out relevant data for each Article
+    for sub_type, sub_display, sub_item_url, article, authors in articles:
+        article_dict = {
+            'sub_type': sub_type,
+            'sub_display': sub_display,
+            'sub_item_url': sub_item_url,
+            'article': {
+                'id': article.pk,
+                'title': article.title,
+                'pub_date': article.pub_date.strftime('%Y'),
+                'url': reverse('article detail', args=(article.pk,)),
+                'authors': _format_authors_list(authors),
+            },
+        }
+        articles_details.append(article_dict)
+
+    return_dict = {
+        'articles': articles_details,
+        'paginator': paginator_dict,
+    }
+
+    if not ajax:
+        return render(request, 'psybrowse_app/index.html', return_dict)
+    else:
+        return HttpResponse(json.dumps(return_dict), mimetype='application/json')
 
 
 def article_detail(request, article_id):
@@ -289,42 +428,12 @@ def search(request):
                     # if page is out of range, deliver last page of results
                     results = paginator.page(paginator.num_pages)
 
-                paginator_dict = {
-                    'page_num': results.number,
-                    'num_pages': results.paginator.num_pages,
-                }
-                paginator_dict['has_previous'] = False if results.number == 1 else True
-                paginator_dict['has_next'] = False if results.number == results.paginator.num_pages else True
-                paginator_dict['prev_page_num'] = (results.previous_page_number()
-                    if paginator_dict['has_previous'] else None)
-                paginator_dict['next_page_num'] = (results.next_page_number()
-                    if paginator_dict['has_previous'] else None)
+                paginator_dict = _format_paginator_dict(results)
 
                 results_details = []
                 # go through the single page of results and pull out relevant data for each Article
                 for result, authors in results:
-                    authors_list = []
-
-                    for k, a in enumerate(authors):
-                        # properly puts in separators between authors, e.g., Adams, Aaronson & Abrams
-                        if len(authors) == 1:
-                            sep = ''
-                        elif len(authors) == 2:
-                            sep = ' & ' if k == 0 else ''
-                        else:
-                            if k == len(authors)-2:
-                                sep = ' & '
-                            elif k == len(authors)-1:
-                                sep = ''
-                            else:
-                                sep = ', '
-
-                        authors_list.append({
-                            'id': a.pk,
-                            'name': a.get_name(),
-                            'url': reverse('author detail', args=(a.pk,)),
-                            'separator': sep,
-                        })
+                    authors_list = _format_authors_list(authors)
 
                     results_details.append({
                         'id': result.pk,

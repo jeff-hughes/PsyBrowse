@@ -430,6 +430,35 @@ input[type="text"] {
     margin-right: 10px;
 }
 
+.indx-error {
+    margin-top: 25px;
+}
+
+.indx-pagination {
+    margin-top: 25px;
+}
+
+.indx-loadMore {
+    background: #ebf0fa;
+    border: 1px #89b1fa solid;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    border-radius: 5px;
+    color: #5488e8;
+    display: block;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    width: 75%;
+}
+.indx-loadMore:visited {
+    color: #5488e8;
+}
+.indx-loadMore:hover {
+    background: #e8eefa;
+}
+
 
 /* Subscribe and unsubscribe buttons. Used to retain visual consistency throughout. Namespaced with 'subbtn-' */
 
