@@ -55,9 +55,35 @@ def _format_article_detail(subscription, article):
         sub_info = (None, subscription, None)
 
     authors = article.authors.all()
-    authors_list = [(a.pk, a.get_name()) for a in authors]
 
-    return (sub_info[0], sub_info[1], sub_info[2], article, authors_list)
+    return (sub_info[0], sub_info[1], sub_info[2], article, authors)
+
+def _format_authors_list(authors):
+    """
+    Takes list of Authors, and returns a list of Author details: id, name, url, and a separator to properly string
+    together author names (e.g., Adams, Aaronson & Abrams).
+    """
+    authors_list = []
+    for k, a in enumerate(authors):
+        if len(authors) == 1:
+            sep = ''
+        elif len(authors) == 2:
+            sep = ' & ' if k == 0 else ''
+        else:
+            if k == len(authors)-2:
+                sep = ' & '
+            elif k == len(authors)-1:
+                sep = ''
+            else:
+                sep = ', '
+
+        authors_list.append({
+            'id': a.pk,
+            'name': a.get_name(),
+            'url': reverse('author detail', args=(a.pk,)),
+            'separator': sep,
+        })
+    return authors_list
 
 
 def _format_subscription_detail(subscription):
@@ -83,6 +109,8 @@ def index(request):
     """
     NUM_ARTICLES = 15
     articles = []
+
+    ajax = request.is_ajax()  # if AJAX, we return JSON strings instead of redirecting page
 
     all_articles = Article.objects.all()
     paginator = Paginator(all_articles, NUM_ARTICLES, orphans=3)
@@ -200,13 +228,32 @@ def index(request):
         for result in recent:
             articles.append(_format_article_detail('recent', result))
 
-    return render(request, 'psybrowse_app/index.html', {
-        'articles': articles,
-            # end result should be: [(sub_type, sub_item_id, sub_display, article1, [(auth1), (auth2), ...]),
-            # (sub_type, sub_item_id, sub_display, article2, [(auth1), (auth2), ...]), ...]
-            # if article is not from a subscription, 'sub_info' field will be the string 'recent'
+
+    articles_details = []
+    # go through the single page of articles and pull out relevant data for each Article
+    for sub_type, sub_item_id, sub_display, article, authors in articles:
+        authors_list = _format_authors_list(authors)
+        article_dict = {
+            'id': article.pk,
+            'title': article.title,
+            'pub_date': article.pub_date.strftime('%Y'),
+            'url': reverse('article detail', args=(article.pk,)),
+            'authors': authors_list,
+        }
+        articles_details.append((sub_type, sub_item_id, sub_display, article_dict))
+
+    return_dict = {
+        'articles': articles_details,
+            # end result should be: [(sub_type, sub_item_id, sub_display, article1), (sub_type, sub_item_id,
+            # sub_display, article2), ...]
+            # if article is not from a subscription, 'sub_display' field will be the string 'recent'
         'paginator': paginator_dict,
-    })
+    }
+
+    if not ajax:
+        return render(request, 'psybrowse_app/index.html', return_dict)
+    else:
+        return HttpResponse(json.dumps(return_dict), mimetype='application/json')
 
 
 def article_detail(request, article_id):
@@ -385,28 +432,7 @@ def search(request):
                 results_details = []
                 # go through the single page of results and pull out relevant data for each Article
                 for result, authors in results:
-                    authors_list = []
-
-                    for k, a in enumerate(authors):
-                        # properly puts in separators between authors, e.g., Adams, Aaronson & Abrams
-                        if len(authors) == 1:
-                            sep = ''
-                        elif len(authors) == 2:
-                            sep = ' & ' if k == 0 else ''
-                        else:
-                            if k == len(authors)-2:
-                                sep = ' & '
-                            elif k == len(authors)-1:
-                                sep = ''
-                            else:
-                                sep = ', '
-
-                        authors_list.append({
-                            'id': a.pk,
-                            'name': a.get_name(),
-                            'url': reverse('author detail', args=(a.pk,)),
-                            'separator': sep,
-                        })
+                    authors_list = _format_authors_list(authors)
 
                     results_details.append({
                         'id': result.pk,
