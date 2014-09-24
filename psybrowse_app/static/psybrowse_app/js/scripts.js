@@ -44,6 +44,50 @@ $(function() {
     }
 
 
+    /* INDEX PAGE */
+    $('.indx-loadMore').click(function(e) {
+        if (jQuery.support.ajax) {
+            e.preventDefault();
+            var $loadMore = $(this)
+            var page = Number($(this).attr('data-page'));
+            if (page !== NaN) {
+                $.get('/psybrowse/', { 'page': page }, function(data) {
+                    if (!('error' in data)) {
+                        console.log(data);
+                        var feedTemplateSrc = $('#indx_feed_item_template').html();
+                        var feedTemplate = Handlebars.compile(feedTemplateSrc);
+                        var feedNewHtml = '';
+                        if ('articles' in data && data.articles !== null) {
+                            for (a in data.articles) {
+                                feedNewHtml += feedTemplate(data.articles[a]);
+                            }
+                            $('.indx-feed').append(feedNewHtml);
+                        } else {
+                            $('.indx-pagination').html(
+                                '<span class="error"><strong>Error:</strong> There was a problem updating the page. Please try again.</span>'
+                            );
+                        }
+                        $loadMore.attr('data-page', page+1).attr('href', '?page='+(page+1));
+                    } else {
+                        console.log(data);
+                        $('.indx-pagination').before(
+                            '<div class="error indx-error"><strong>Error:</strong> ' + data.error + '</div>'
+                        );
+                    }
+                }).fail(function() {
+                    console.log('AJAX failure');
+                    $('.indx-pagination').before(
+                        '<div class="error indx-error"><strong>Error:</strong> There was a problem updating the page. Please try again.</div>'
+                    );
+                });
+                addFilter($(this));
+            } else {
+                $loadMore.parent().html('');
+            }
+        }
+    });
+
+
     /* SEARCH PAGE */
     $('.srch-sort').change(function(e) {
         var urlString = addQuery({'sort': $(this).val()});

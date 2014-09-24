@@ -231,22 +231,23 @@ def index(request):
 
     articles_details = []
     # go through the single page of articles and pull out relevant data for each Article
-    for sub_type, sub_item_id, sub_display, article, authors in articles:
-        authors_list = _format_authors_list(authors)
+    for sub_type, sub_display, sub_item_url, article, authors in articles:
         article_dict = {
-            'id': article.pk,
-            'title': article.title,
-            'pub_date': article.pub_date.strftime('%Y'),
-            'url': reverse('article detail', args=(article.pk,)),
-            'authors': authors_list,
+            'sub_type': sub_type,
+            'sub_display': sub_display,
+            'sub_item_url': sub_item_url,
+            'article': {
+                'id': article.pk,
+                'title': article.title,
+                'pub_date': article.pub_date.strftime('%Y'),
+                'url': reverse('article detail', args=(article.pk,)),
+                'authors': _format_authors_list(authors),
+            },
         }
-        articles_details.append((sub_type, sub_item_id, sub_display, article_dict))
+        articles_details.append(article_dict)
 
     return_dict = {
         'articles': articles_details,
-            # end result should be: [(sub_type, sub_item_id, sub_display, article1), (sub_type, sub_item_id,
-            # sub_display, article2), ...]
-            # if article is not from a subscription, 'sub_display' field will be the string 'recent'
         'paginator': paginator_dict,
     }
 

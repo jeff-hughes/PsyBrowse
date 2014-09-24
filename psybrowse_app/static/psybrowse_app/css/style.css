@@ -430,6 +430,10 @@ input[type="text"] {
     margin-right: 10px;
 }
 
+.indx-error {
+    margin-top: 25px;
+}
+
 .indx-pagination {
     margin-top: 25px;
 }
