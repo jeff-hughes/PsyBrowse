@@ -224,6 +224,9 @@ class Article(models.Model):
             return u' & '.join(authors_list)
         else:
             return u'{:s}, & {:s}'.format(', '.join(authors_list[:-1]), authors_list[-1])
+    # this is stuff used in the admin panel; why the hell does Django make you put it here??
+    get_authors_str.admin_order_field = 'authors'
+    get_authors_str.short_description = 'Authors'
 
     def get_formatted_type(self, capitalized=True):
         """Returns nicely formatted string description of Article type (optionally capitalized)."""
@@ -356,7 +359,7 @@ class Subscription(models.Model):
     journal = models.ForeignKey(Journal, blank=True, null=True)
 
     def __unicode__(self):
-        rel_object = getattr(self, TYPE_DICT[self.sub_type])
+        rel_object = getattr(self, Subscription.TYPE_DICT[self.sub_type])
         return u'{:s}: {:s}'.format(self.get_sub_type_display(), unicode(rel_object))
 
     def get_formatted_type(self, capitalized=True):
