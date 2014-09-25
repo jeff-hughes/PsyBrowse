@@ -51,51 +51,11 @@ class WhooshArticleIndex(object):
         else:
             ix = self.get_index()
 
-        with ix.searcher() as searcher:
-            writer = ix.writer()
+        articles = Article.objects.all()
+        for article in articles:
+            article.index_article(ix, commit=False, clear=clear)
 
-            articles = Article.objects.all()
-            for article in articles:
-                write = True
+        ix.writer().commit()
 
-                if not clear:
-                    match = searcher.document_number(id=unicode(article.pk))
-
-                    # for each article, index it if it has not been indexed yet or has been modified since indexing
-                    if match:
-                        match_fields = searcher.stored_fields(match)
-                        if article.date_modified > match_fields['index_date']:
-                            writer.delete_document(match)
-                        else:
-                            write = False
-
-                if write:
-                    d = article.pub_date
-                    fields = ['id', 'source', 'type', 'title', 'journal', 'date', 'authors', 'abstract', 'keywords']
-                    values = [
-                        unicode(article.pk),
-                        unicode(article.get_formatted_source()),
-                        unicode(article.get_formatted_type()),
-                        unicode(article.title),
-                        unicode(article.journal.title),
-                        datetime.datetime(d.year, d.month, d.day),
-                        unicode(article.get_authors_str()),
-                        unicode(article.abstract),
-                        unicode(article.get_keywords_str(u',')),
-                    ]
-                    terms = {f:v for f, v in zip(fields, values) if v is not None}
-                    writer.add_document(**terms)
-
-                    """writer.add_document(
-                        id=unicode(article.pk),
-                        type=unicode(article.type),
-                        title=(u'' if article.title is None else unicode(article.title)),
-                        journal=(u'' if article.journal.title is None else unicode(article.journal.title)),
-                        date=datetime.strptime(article.pub_date, '%Y-%m-%d'),
-                        authors=(u'' if article.get_authors_str() is None else unicode(article.get_authors_str())),
-                        abstract=(u'' if article.abstract is None else unicode(article.abstract)),
-                        keywords=(u'' if article.get_keywords_str(u',') is None else unicode(article.get_keywords_str(u','))),
-                    )"""
-            writer.commit()
         print 'Index completed.'
         return True

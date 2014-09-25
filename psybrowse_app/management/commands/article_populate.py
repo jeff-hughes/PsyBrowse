@@ -76,6 +76,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         pubmed_search = harvesters.PubMedHarvester('psychology', 100)
+        ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
+
         for result in pubmed_search.get_results():
             search_articles = Article.objects.filter(source__exact=Article.PUBMED, source_id__exact=result['source_id'])
 
@@ -83,10 +85,15 @@ class Command(BaseCommand):
             if not search_articles:
                 article = self._create_article(result, Article.PUBMED)
 
-                if article and result['authors']:
-                    self._add_authors(article, result['authors'])
+                if article:
+                    if result['authors']:
+                        self._add_authors(article, result['authors'])
 
-                if article and result['journal']:
-                    self._add_journal(article, result['journal'])
+                    if result['journal']:
+                        self._add_journal(article, result['journal'])
 
-                print unicode(article)
+                    article.index_article(ix, commit=False)
+
+                    print unicode(article)
+
+        ix.writer().commit()  # commit all changes to Whoosh search index

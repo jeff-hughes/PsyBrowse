@@ -245,6 +245,53 @@ class Article(models.Model):
         kw_list = [k.value for k in self.keywords.all()]
         return sep.join(kw_list)
 
+    def index_article(self, index=None, commit=True, clear=False):
+        """
+        Adds Article to the Whoosh search index. If 'clear' is set to True, Article will be re-indexed if it already
+        exists in the index; otherwise, it will only be indexed if it does not already exist or has been modified since.
+        The 'index' parameter can be given an existing Whoosh index that will be used; otherwise, the function will use
+        its own. The 'commit' parameter determines whether the changes are automatically committed (set to False if you
+        are indexing a number of Articles all at the same time and only want to make one database call).
+        """
+        write = True
+        if index:
+            ix = index
+        else:
+            ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
+
+        with ix.searcher() as searcher:
+            writer = ix.writer()
+            if not clear:
+                match = searcher.document_number(id=unicode(self.pk))
+
+                # index article if it has not been indexed yet or has been modified since indexing
+                if match:
+                    match_fields = searcher.stored_fields(match)
+                    if self.date_modified > match_fields['index_date']:
+                        writer.delete_document(match)
+                    else:
+                        write = False
+
+            if write:
+                d = self.pub_date
+                fields = ['id', 'source', 'type', 'title', 'journal', 'date', 'authors', 'abstract', 'keywords']
+                values = [
+                    unicode(self.pk),
+                    unicode(self.get_formatted_source()),
+                    unicode(self.get_formatted_type()),
+                    unicode(self.title),
+                    unicode(self.journal.title),
+                    datetime.datetime(d.year, d.month, d.day),
+                    unicode(self.get_authors_str()),
+                    unicode(self.abstract),
+                    unicode(self.get_keywords_str(u',')),
+                ]
+                terms = {f:v for f, v in zip(fields, values) if v is not None}
+                writer.add_document(**terms)
+
+                if commit:
+                    writer.commit()
+
 
 class UserProfile(models.Model):
     """
