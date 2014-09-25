@@ -42,20 +42,15 @@ class Command(BaseCommand):
                     article.authors.add(search_authors[0])
                 else:
                     # if close match, create new author but flag for conflict
-                    article.authors.create(
-                        first_name=author['first_name'],
-                        last_name=author['last_name'],
-                        initials=author['initials'],
-                        flag_conflict=True
-                    )
+                    author['flag_conflict'] = True
+                    article.authors.create(**author)
                     search_authors[0].flag_conflict = True
                     search_authors[0].save(update_fields=['flag_conflict'])
             else:
-                article.authors.create(
-                    first_name=author['first_name'],
-                    last_name=author['last_name'],
-                    initials=author['initials']
-                )
+                if not author['first_name'] or not author['last_name']:
+                    author['flag_missing'] = True
+
+                a = article.authors.create(**author)
         return article
 
     def _add_journal(self, article, journal):
@@ -93,6 +88,15 @@ class Command(BaseCommand):
                         self._add_journal(article, result['journal'])
 
                     article.index_article(ix, commit=False)
+
+                    # look for missing values in critical fields, to be reviewed later
+                    critical_fields = ['type', 'title', 'journal', 'pub_date', 'authors']
+                    for f in critical_fields:
+                        attr = getattr(article, f)
+                        if not attr:
+                            article.flag_missing = True
+
+                    article.save()
 
                     print unicode(article)
 
