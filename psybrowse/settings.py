@@ -58,18 +58,22 @@ WSGI_APPLICATION = 'psybrowse.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'psybrowse',
-        'USER': 'pb_user',
-        'PASSWORD': 'PbDfu23No',
-        'HOST': '',
+if 'RDS_DB_NAME' in os.environ:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': os.environ['RDS_DB_NAME'],
+            'USER': os.environ['RDS_USERNAME'],
+            'PASSWORD': os.environ['RDS_PASSWORD'],
+            'HOST': os.environ['RDS_HOSTNAME'],
+            'PORT': os.environ['RDS_PORT'],
+        }
     }
-}
-
-# Parse database configuration from $DATABASE_URL
-DATABASES['default'] =  dj_database_url.config()
+else:
+    try:
+        from local_settings import *
+    except ImportError, e:
+        pass
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
