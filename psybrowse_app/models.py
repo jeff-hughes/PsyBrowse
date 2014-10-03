@@ -1,3 +1,5 @@
+import os
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -157,35 +159,49 @@ class Article(models.Model):
         a valid search string, search() will return an instance of EmptyQuerySet.
         """
 
-        """if value and isinstance(value, basestring):
-            return Article.objects.filter(
-                models.Q(title__icontains=value) |
-                models.Q(authors__first_name__icontains=value) |
-                models.Q(authors__last_name__icontains=value) |
-                models.Q(journal__title__icontains=value) |
-                models.Q(abstract__icontains=value)
-            ).distinct()
+        # if Whoosh is enabled, use it
+        if 'WHOOSH_ENABLED' in os.environ and
+            (os.environ['WHOOSH_ENABLED'] == True or os.environ['WHOOSH_ENABLED'] == 'True'):
+
+            if value and isinstance(value, basestring):
+                ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
+
+                qp = MultifieldParser(['title', 'authors', 'journal', 'abstract'], schema=ix.schema)
+                qp.add_plugin(DateParserPlugin())  # add more natural-language date searching
+                                                   # info: http://whoosh.readthedocs.org/en/latest/dates.html
+                q = qp.parse(value)
+
+                with ix.searcher() as searcher:
+                    results = searcher.search(q, limit=None)  # don't limit here, because we paginate in the view instead
+
+                    if not results.is_empty():
+                        ids = [x['id'] for x in results]  # grab Article IDs for each matching document
+                        return Article.objects.filter(pk__in=ids).distinct()
+                    else:
+                        return Article.objects.none()
+
+            else:
+                return Article.objects.none()
+
+        # otherwise, use a crappier search mechanism
         else:
-            return None"""
+            if value and isinstance(value, basestring):
+                queries = models.Q()  # empty query object to start, to append to
 
-        if value and isinstance(value, basestring):
-            ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
+                words = value.split(' ')
+                for word in words:
+                    queries = (
+                        queries |
+                        models.Q(title__icontains=word) |
+                        models.Q(authors__first_name__icontains=word) |
+                        models.Q(authors__last_name__icontains=word) |
+                        models.Q(journal__title__icontains=word) |
+                        models.Q(abstract__icontains=word)
+                    )
 
-            qp = MultifieldParser(['title', 'authors', 'journal', 'abstract'], schema=ix.schema)
-            qp.add_plugin(DateParserPlugin())  # add more natural-language date searching
-                                               # info: http://whoosh.readthedocs.org/en/latest/dates.html
-            q = qp.parse(value)
-
-            with ix.searcher() as searcher:
-                results = searcher.search(q, limit=None)  # don't limit here, because we paginate in the view instead
-
-                if not results.is_empty():
-                    ids = [x['id'] for x in results]  # grab Article IDs for each matching document
-                    return Article.objects.filter(pk__in=ids).distinct()
-                else:
-                    return Article.objects.none()
-        else:
-            return Article.objects.none()
+                return Article.objects.filter(queries).distinct()
+            else:
+                return None
 
 
     @classmethod
