@@ -4,6 +4,7 @@
 This module pulls article data from various databases and populates the Django database.
 """
 import os
+from optparse import make_option
 from django.core.management.base import BaseCommand
 from psybrowse_app.models import Article, Author, Journal
 import harvesters
