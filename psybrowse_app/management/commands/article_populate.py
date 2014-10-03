@@ -11,6 +11,14 @@ import harvesters
 class Command(BaseCommand):
     help = 'Populates the Article and Author database with new articles'
 
+    option_list = BaseCommand.option_list + (
+        make_option('--initial',
+            action='store_true',
+            dest='empty_database',
+            default=False,
+            help='Indicates an initial population of the database, so articles are not constantly being reindexed.'),
+        )
+
     def _create_article(self, result, source):
         """Creates a new Article based on data in `result` and `source`, and returns the new Article."""
         art = Article(
@@ -71,44 +79,49 @@ class Command(BaseCommand):
         return article
 
     def handle(self, *args, **options):
-        if ('WHOOSH_ENABLED' in os.environ and
-            (os.environ['WHOOSH_ENABLED'] == False or os.environ['WHOOSH_ENABLED'] == 'False')):
-            use_whoosh = True
-        else:
-            use_whoosh = False
+        # only populate database if --initial flag is not set, or if it is but there are no existing Articles
+        # primary purpose for this is so command can be used when updating AWS environment without overwriting all the
+        # existing articles in the database every time
+        if not options['initial'] or (options['initial'] and Article.objects.count() == 0):
 
-        pubmed_search = harvesters.PubMedHarvester('psychology', 100)
+            if ('WHOOSH_ENABLED' in os.environ and
+                (os.environ['WHOOSH_ENABLED'] == False or os.environ['WHOOSH_ENABLED'] == 'False')):
+                use_whoosh = True
+            else:
+                use_whoosh = False
 
-        if use_whoosh:
-            ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
+            pubmed_search = harvesters.PubMedHarvester('psychology', 100)
 
-        for result in pubmed_search.get_results():
-            search_articles = Article.objects.filter(source__exact=Article.PUBMED, source_id__exact=result['source_id'])
+            if use_whoosh:
+                ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
 
-            # only create articles that don't already exist
-            if not search_articles:
-                article = self._create_article(result, Article.PUBMED)
+            for result in pubmed_search.get_results():
+                search_articles = Article.objects.filter(source__exact=Article.PUBMED, source_id__exact=result['source_id'])
 
-                if article:
-                    if result['authors']:
-                        self._add_authors(article, result['authors'])
+                # only create articles that don't already exist
+                if not search_articles:
+                    article = self._create_article(result, Article.PUBMED)
 
-                    if result['journal']:
-                        self._add_journal(article, result['journal'])
+                    if article:
+                        if result['authors']:
+                            self._add_authors(article, result['authors'])
 
-                    if use_whoosh:
-                        article.index_article(ix, commit=False)
+                        if result['journal']:
+                            self._add_journal(article, result['journal'])
 
-                    # look for missing values in critical fields, to be reviewed later
-                    critical_fields = ['type', 'title', 'journal', 'pub_date', 'authors']
-                    for f in critical_fields:
-                        attr = getattr(article, f)
-                        if not attr:
-                            article.flag_missing = True
+                        if use_whoosh:
+                            article.index_article(ix, commit=False)
 
-                    article.save()
+                        # look for missing values in critical fields, to be reviewed later
+                        critical_fields = ['type', 'title', 'journal', 'pub_date', 'authors']
+                        for f in critical_fields:
+                            attr = getattr(article, f)
+                            if not attr:
+                                article.flag_missing = True
 
-                    print unicode(article)
+                        article.save()
 
-        if use_whoosh:
-            ix.writer().commit()  # commit all changes to Whoosh search index
+                        print unicode(article)
+
+            if use_whoosh:
+                ix.writer().commit()  # commit all changes to Whoosh search index
