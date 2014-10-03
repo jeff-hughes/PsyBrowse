@@ -159,9 +159,30 @@ class Article(models.Model):
         a valid search string, search() will return an instance of EmptyQuerySet.
         """
 
-        # if Whoosh is enabled, use it
-        if 'WHOOSH_ENABLED' in os.environ and
-            (os.environ['WHOOSH_ENABLED'] == True or os.environ['WHOOSH_ENABLED'] == 'True'):
+        # use a crappier search mechanism if Whoosh is not enabled
+        if (not 'WHOOSH_ENABLED' in os.environ or
+            (os.environ['WHOOSH_ENABLED'] == False or os.environ['WHOOSH_ENABLED'] == 'False')):
+
+            if value and isinstance(value, basestring):
+                queries = models.Q()  # empty query object to start, to append to
+
+                words = value.split(' ')
+                for word in words:
+                    queries = (
+                        queries |
+                        models.Q(title__icontains=word) |
+                        models.Q(authors__first_name__icontains=word) |
+                        models.Q(authors__last_name__icontains=word) |
+                        models.Q(journal__title__icontains=word) |
+                        models.Q(abstract__icontains=word)
+                    )
+
+                return Article.objects.filter(queries).distinct()
+            else:
+                return None
+
+        # use Whoosh if enabled
+        else:
 
             if value and isinstance(value, basestring):
                 ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
@@ -182,26 +203,6 @@ class Article(models.Model):
 
             else:
                 return Article.objects.none()
-
-        # otherwise, use a crappier search mechanism
-        else:
-            if value and isinstance(value, basestring):
-                queries = models.Q()  # empty query object to start, to append to
-
-                words = value.split(' ')
-                for word in words:
-                    queries = (
-                        queries |
-                        models.Q(title__icontains=word) |
-                        models.Q(authors__first_name__icontains=word) |
-                        models.Q(authors__last_name__icontains=word) |
-                        models.Q(journal__title__icontains=word) |
-                        models.Q(abstract__icontains=word)
-                    )
-
-                return Article.objects.filter(queries).distinct()
-            else:
-                return None
 
 
     @classmethod
