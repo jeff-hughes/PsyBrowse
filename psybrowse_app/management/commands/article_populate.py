@@ -3,6 +3,7 @@
 """
 This module pulls article data from various databases and populates the Django database.
 """
+import os
 from django.core.management.base import BaseCommand
 from psybrowse_app.models import Article, Author, Journal
 import harvesters
@@ -70,8 +71,16 @@ class Command(BaseCommand):
         return article
 
     def handle(self, *args, **options):
+        if ('WHOOSH_ENABLED' in os.environ and
+            (os.environ['WHOOSH_ENABLED'] == False or os.environ['WHOOSH_ENABLED'] == 'False')):
+            use_whoosh = True
+        else:
+            use_whoosh = False
+
         pubmed_search = harvesters.PubMedHarvester('psychology', 100)
-        ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
+
+        if use_whoosh:
+            ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
 
         for result in pubmed_search.get_results():
             search_articles = Article.objects.filter(source__exact=Article.PUBMED, source_id__exact=result['source_id'])
@@ -87,7 +96,8 @@ class Command(BaseCommand):
                     if result['journal']:
                         self._add_journal(article, result['journal'])
 
-                    article.index_article(ix, commit=False)
+                    if use_whoosh:
+                        article.index_article(ix, commit=False)
 
                     # look for missing values in critical fields, to be reviewed later
                     critical_fields = ['type', 'title', 'journal', 'pub_date', 'authors']
@@ -100,4 +110,5 @@ class Command(BaseCommand):
 
                     print unicode(article)
 
-        ix.writer().commit()  # commit all changes to Whoosh search index
+        if use_whoosh:
+            ix.writer().commit()  # commit all changes to Whoosh search index

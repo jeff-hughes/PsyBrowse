@@ -160,7 +160,7 @@ class Article(models.Model):
         """
 
         # use a crappier search mechanism if Whoosh is not enabled
-        if (not 'WHOOSH_ENABLED' in os.environ or
+        if ('WHOOSH_ENABLED' in os.environ and
             (os.environ['WHOOSH_ENABLED'] == False or os.environ['WHOOSH_ENABLED'] == 'False')):
 
             if value and isinstance(value, basestring):
