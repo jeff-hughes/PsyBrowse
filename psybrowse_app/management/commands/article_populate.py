@@ -15,7 +15,7 @@ class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
         make_option('--initial',
             action='store_true',
-            dest='empty_database',
+            dest='initial',
             default=False,
             help='Indicates an initial population of the database, so articles are not constantly being reindexed.'),
         )
