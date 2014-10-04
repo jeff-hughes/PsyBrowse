@@ -80,7 +80,7 @@ class PubMedHarvester(Harvester):
                 pub_date = result.find('DateCreated')
 
             if pub_date is not None:
-                year = self._safe_get_text(pub_date.find('Year'))
+                year = self._safe_get_text(pub_date.find('Year'), None)
                 month = self._safe_get_text(pub_date.find('Month'), '1')
                 if not month.isdigit():
                     month = MONTHS[month]
