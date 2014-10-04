@@ -73,7 +73,7 @@ $(function() {
             if (page !== NaN) {
                 // AJAX query requests the next page of articles for the news feed, and loads them at the bottom of the
                 // news feed
-                $.get('/psybrowse/', { 'page': page }, function(data) {
+                $.get('/', { 'page': page }, function(data) {
                     if (!('error' in data)) {
                         console.log(data);
                         var feedTemplateSrc = $('#indx_feed_item_template').html();
@@ -189,7 +189,7 @@ $(function() {
 
         if (jQuery.support.ajax) {
             // AJAX query requests search results with new sort argument and replaces the current results with new ones
-            $.get('/psybrowse/search/', urlQuery, function(data) {
+            $.get('/search/', urlQuery, function(data) {
                 if (!('error' in data)) {
                     console.log(data);
                     updateResults(data);
@@ -276,7 +276,7 @@ $(function() {
 
             if (jQuery.support.ajax) {
                 // AJAX request gets filtered results and updates the page with new results
-                $.get('/psybrowse/search/', urlQuery, function(data) {
+                $.get('/search/', urlQuery, function(data) {
                     if (!('error' in data)) {
                         console.log(data);
                         updateResults(data);
@@ -320,7 +320,7 @@ $(function() {
 
             if (jQuery.support.ajax) {
                 // AJAX request gets unfiltered results and updates the page with new results
-                $.get('/psybrowse/search/', urlQuery, function(data) {
+                $.get('/search/', urlQuery, function(data) {
                     if (!('error' in data)) {
                         console.log(data);
                         updateResults(data);
@@ -400,7 +400,7 @@ $(function() {
 
         // AJAX request, if successful, changes the 'subscribe' button to an 'unsubscribe' button and adds the
         // unsubscribe handler to that new button
-        $.get('/psybrowse/subscribe/', params, function(data) {
+        $.get('/subscribe/', params, function(data) {
             if (data.response === true) {
                 console.log(data);
                 $button.removeClass('subbtn-subscribe').addClass('subbtn-unsubscribe');
@@ -438,7 +438,7 @@ $(function() {
 
         // AJAX request, if successful, changes the 'unsubscribe' button to a 'subscribe' button and adds the
         // subscribe handler to that new button
-        $.get('/psybrowse/unsubscribe/', params, function(data) {
+        $.get('/unsubscribe/', params, function(data) {
             if (data.response === true) {
                 console.log(data);
                 $button.removeClass('subbtn-unsubscribe').addClass('subbtn-subscribe');
