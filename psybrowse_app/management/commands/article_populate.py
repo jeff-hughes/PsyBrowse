@@ -122,7 +122,7 @@ class Command(BaseCommand):
 
                         article.save()
 
-                        print unicode(article)
+                        print unicode(article).encode('utf-8')
 
             if use_whoosh:
                 ix.writer().commit()  # commit all changes to Whoosh search index
