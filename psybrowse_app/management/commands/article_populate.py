@@ -85,11 +85,10 @@ class Command(BaseCommand):
         # existing articles in the database every time
         if not options['initial'] or (options['initial'] and Article.objects.count() == 0):
 
-            if ('WHOOSH_ENABLED' in os.environ and
-                (os.environ['WHOOSH_ENABLED'] == False or os.environ['WHOOSH_ENABLED'] == 'False')):
-                use_whoosh = True
-            else:
+            if 'WHOOSH_DISABLED' in os.environ:
                 use_whoosh = False
+            else:
+                use_whoosh = True
 
             pubmed_search = harvesters.PubMedHarvester('psychology', 100)
 

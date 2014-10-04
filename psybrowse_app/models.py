@@ -160,9 +160,7 @@ class Article(models.Model):
         """
 
         # use a crappier search mechanism if Whoosh is not enabled
-        if ('WHOOSH_ENABLED' in os.environ and
-            (os.environ['WHOOSH_ENABLED'] == False or os.environ['WHOOSH_ENABLED'] == 'False')):
-
+        if 'WHOOSH_DISABLED' in os.environ:
             if value and isinstance(value, basestring):
                 queries = models.Q()  # empty query object to start, to append to
 
@@ -183,7 +181,6 @@ class Article(models.Model):
 
         # use Whoosh if enabled
         else:
-
             if value and isinstance(value, basestring):
                 ix = whoosh.index.open_dir('psybrowse_app/article_index')  # open Whoosh index
 
