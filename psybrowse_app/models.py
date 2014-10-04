@@ -162,12 +162,11 @@ class Article(models.Model):
         # use a crappier search mechanism if Whoosh is not enabled
         if 'WHOOSH_DISABLED' in os.environ:
             if value and isinstance(value, basestring):
-                queries = models.Q()  # empty query object to start, to append to
+                queries = []
 
                 words = value.split(' ')
                 for word in words:
-                    queries = (
-                        queries |
+                    queries.append(
                         models.Q(title__icontains=word) |
                         models.Q(authors__first_name__icontains=word) |
                         models.Q(authors__last_name__icontains=word) |
@@ -175,7 +174,7 @@ class Article(models.Model):
                         models.Q(abstract__icontains=word)
                     )
 
-                return Article.objects.filter(queries).distinct()
+                return Article.objects.filter(*queries).distinct()
             else:
                 return None
 
