@@ -18,7 +18,7 @@ urlpatterns = patterns('',
 
     # USER PAGES:
     url(r'^register/?$', views.register, name='register'),  # ex: /psybrowse/register/
-    url(r'^login/?$', 'django.contrib.auth.views.login', { 'template_name': 'psybrowse_app/login.html' }, name='login'),  # ex: /psybrowse/login/
+    url(r'^login/?$', 'django.contrib.auth.views.login', { 'template_name': 'psybrowse_app/login.html', 'extra_context': {'next':'/'} }, name='login'),  # ex: /psybrowse/login/
     url(r'^logout/?$', views.logout_page, name='logout'),  # ex: /psybrowse/logout/
 
     # SUBSCRIBE:
