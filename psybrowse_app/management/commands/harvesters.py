@@ -74,9 +74,9 @@ class PubMedHarvester(Harvester):
             pages = self._safe_get_text(article.find('Pagination/MedlinePgn'), None)
 
             pub_date = article.find('Journal/JournalIssue/PubDate')
-            if pub_date is None:
+            if pub_date is None or pub_date.find('Year') is None:
                 pub_date = article.find('ArticleDate')
-            if pub_date is None:
+            if pub_date is None or pub_date.find('Year') is None:
                 pub_date = result.find('DateCreated')
 
             if pub_date is not None:
@@ -89,11 +89,11 @@ class PubMedHarvester(Harvester):
                         int(year),
                         int(month),
                         int(self._safe_get_text(pub_date.find('Day'), 1)))
-                    date = date.strftime('%Y-%m-%d')  # we want date in YYYY-MM-DD format
                 else:
-                    date = None
+                    date = datetime.datetime.now()
             else:
-                date = None
+                date = datetime.datetime.now()
+            date = date.strftime('%Y-%m-%d')  # we want date in YYYY-MM-DD format
 
             authors_list = article.findall('AuthorList/Author')
             authors = []
