@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages',
     'psybrowse_app',
 )
 
@@ -93,13 +92,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'static/')
-
-# using boto and django-storages to put static files on S3 instance
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-STATICFILES_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_ACCESS_KEY_ID = 'AKIAIXWPQVAMP2FZFQOQ'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'elasticbeanstalk-us-east-1-247215283163'
 
 # Login URL: the login_required() function uses this to redirect; can be a view name as well
 LOGIN_URL = 'django.contrib.auth.views.login'
