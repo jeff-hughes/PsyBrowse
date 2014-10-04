@@ -95,4 +95,4 @@ STATIC_ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 # Login URL: the login_required() function uses this to redirect; can be a view name as well
 LOGIN_URL = 'django.contrib.auth.views.login'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = 'index'
