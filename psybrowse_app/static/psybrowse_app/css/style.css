@@ -239,6 +239,10 @@ a:hover {
     text-decoration: none;
 }
 
+a[href='#'] {  /* Visually distinguish links that have not been set up yet. */
+    text-decoration: line-through;
+}
+
 input[type="text"] {
     border: 1px #ddd solid;
 }
