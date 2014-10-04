@@ -403,7 +403,8 @@ def search(request):
 
                 # pull all summary (count) data
                 for article in query_set:
-                    summary['dates'][article.pub_date.year] += 1
+                    if article.pub_date is not None:
+                        summary['dates'][article.pub_date.year] += 1
                     summary['types'][Article.TYPE_DICT[article.type].capitalize()] += 1
 
                     authors = article.authors.all()
@@ -434,11 +435,15 @@ def search(request):
                 # go through the single page of results and pull out relevant data for each Article
                 for result, authors in results:
                     authors_list = _format_authors_list(authors)
+                    if result.pub_date is not None:
+                        pub_year = result.pub_date.strftime('%Y')
+                    else:
+                        pub_year = 'n.d.'
 
                     results_details.append({
                         'id': result.pk,
                         'title': result.title,
-                        'pub_date': result.pub_date.strftime('%Y'),
+                        'pub_date': pub_year,
                         'url': reverse('article detail', args=(result.pk,)),
                         'authors': authors_list,
                     })
