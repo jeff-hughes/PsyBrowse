@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from django.contrib.auth.models import User
+
 from psybrowse_app.models import UserProfile
 
 if User.objects.count() == 0:

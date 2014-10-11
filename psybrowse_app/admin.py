@@ -2,14 +2,16 @@ from datetime import date
 
 from django.contrib import admin
 
-# Register your models here.
-from psybrowse_app.models import Author, Keyword, Journal, Article, UserProfile, Subscription
+from psybrowse_app.models import (Author, Keyword, Journal, Article,
+                                  UserProfile, Subscription)
 
 class AuthorAdmin(admin.ModelAdmin):
     actions_on_top = True
     actions_on_bottom = True
     search_fields = ['first_name', 'last_name']
-    fields = (('first_name', 'initials', 'last_name'), 'flag_conflict', 'flag_missing')
+    fields = (('first_name', 'initials', 'last_name'),
+              'flag_conflict',
+              'flag_missing')
 
 class JournalAdmin(admin.ModelAdmin):
     actions_on_top = True
@@ -17,14 +19,16 @@ class JournalAdmin(admin.ModelAdmin):
     search_fields = ['title']
 
 class PubDateListFilter(admin.SimpleListFilter):
-    title = 'By publication date'  # human-readable title
-    parameter_name = 'pub_date'  # parameter for the filter that will be used in the URL query
+    title = 'By publication date'  # Human-readable title
+    parameter_name = 'pub_date'  # Parameter for the filter that will be used
+                                 # in the URL query
 
     def lookups(self, request, model_admin):
         """
-        Returns a list of tuples. The first element in each tuple is the coded value for the option that will appear in
-        the URL query. The second element is the human-readable name for the option that will appear in the right
-        sidebar.
+        Return a list of tuples. The first element in each tuple is the coded
+        value for the option that will appear in the URL query. The second
+        element is the human-readable name for the option that will appear in
+        the right sidebar.
         """
         return (
             ('1990', '1990s'),
@@ -34,7 +38,8 @@ class PubDateListFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """
-        Returns the filtered queryset based on the value provided in the query string and retrievable via self.value().
+        Return the filtered queryset based on the value provided in the query
+        string and retrievable via self.value().
         """
         if self.value() == '1990':
             return queryset.filter(pub_date__gte=date(1990, 1, 1),
@@ -55,7 +60,8 @@ class ArticleAdmin(admin.ModelAdmin):
     #raw_id_fields = ('journal',)
 
 class UserProfileAdmin(admin.ModelAdmin):
-    search_fields = ['affiliation', 'user__first_name', 'user__last_name', 'user__email']
+    search_fields = ['affiliation', 'user__first_name', 'user__last_name',
+                     'user__email']
 
 admin.site.register(Author, AuthorAdmin)
 admin.site.register(Keyword)

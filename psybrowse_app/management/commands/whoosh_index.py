@@ -1,18 +1,23 @@
 #!/usr/bin/env python
 
 """
-This module contains a WhooshArticleIndex class to create a schema and index for indexing articles.
+This module contains a WhooshArticleIndex class to create a schema and index
+for indexing articles.
 """
-
-from psybrowse_app.models import Article, Author, Journal, Keyword
 
 import os, os.path
 import datetime
+
 import whoosh.index as index
 from whoosh.fields import *
 
+from psybrowse_app.models import Article, Author, Journal, Keyword
+
 class WhooshArticleIndex(object):
-    """This class contains methods to create a schema and index for indexing articles."""
+    """
+    This class contains methods to create a schema and index for indexing
+    articles.
+    """
     DIR_PATH = 'psybrowse_app/article_index'
 
     def get_schema(self):
