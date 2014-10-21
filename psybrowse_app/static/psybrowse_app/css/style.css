@@ -479,18 +479,12 @@ input[type="text"] {
 .subbtn-subscribe {
     background: #6d6;
     border-color: #0c0;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
     padding: 10px 25px;
 }
 
 .subbtn-unsubscribe {
     background: #e33;
     border-color: #b00;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
     padding: 10px 15px;
 }
 
@@ -537,7 +531,27 @@ input[type="text"] {
 
 .art-actions {
     float: right;
+    padding: 3px 10px 5px;
+}
+
+.art-view {
+    clear: right;
+    float: right;
     padding: 3px 10px 10px;
+}
+
+.art-viewButton {
+    background: #aaa;
+    border-color: #999;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 25px;
+    text-align: center;
+    width: 77px;
+}
+.art-viewButton:hover, .art-viewButton:visited {
+    color: #fff;
 }
 
 .art-title {

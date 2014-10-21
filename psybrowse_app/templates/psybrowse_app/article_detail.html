@@ -20,6 +20,11 @@
                     <a class="button subbtn-subscribe" href="{% url 'subscribe' %}?type=article&id={{ article.pk }}" data-type="article" data-id="{{ article.pk }}">Subscribe</a>
                 {% endif %}
             </div>
+            <div class="art-view">
+                {% if url %}
+                    <a class="button art-viewButton" href="{{ url }}" target="_blank">View</a>
+                {% endif %}
+            </div>
             <h2 class="art-title">{{ article.title|escape }}</h2>
             <div class="art-meta"><span class="art-year" title="{{ article.pub_date|date:"F j, Y" }}">({{ article.pub_date|date:"Y" }})</span>
             <span class="art-authors">
