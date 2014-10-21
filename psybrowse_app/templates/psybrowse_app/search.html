@@ -86,17 +86,14 @@
                             {% for author in article.authors %}<a href="{{ author.url }}">{{ author.name|escape }}</a>{{ author.separator|escape }}{% endfor %}
                         </span>
                     </div>
-                    <!--<div class="srch-meta">
-                        <span class="srch-star"><img src="img/star.png" title="This article has been peer reviewed" /></span>
-                        <span class="srch-methodology" title="Soundness of Methodology" style="background: #0b0">4.5</span>
-                        <span class="srch-contribution" title="Contribution to Literature" style="background: #dfd300">3.2</span>
-                        <div class="srch-additional">
-                            <ul>
-                                <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Abstract</a></li>
-                                <li><a href="#"><img src="img/arrow_right.png" class="srch-arrow" />Connections</a></li>
-                            </ul>
-                        </div>
-                    </div>-->
+                    <div class="srch-resultMeta">
+                        {% if article.source == 'PubMed' %}
+                            <img src="{% static 'psybrowse_app/img/icon_open_access.png' %}" alt="Open Access" title="Open Access" class="srch-openAccess" />
+                            <img src="{% static 'psybrowse_app/img/icon_open_data.png' %}" alt="Open Data" title="Open Data" class="srch-openData" />
+                            <img src="{% static 'psybrowse_app/img/icon_open_materials.png' %}" alt="Open Materials" title="Open Materials" class="srch-openMaterials" />
+                            <img src="{% static 'psybrowse_app/img/icon_preregistered.png' %}" alt="Preregistered" title="Preregistered" class="srch-preregistered" />
+                        {% endif %}
+                    </div>
                 </div>
             {% empty %}
                 <p>Sorry, your search returned no results.</p>

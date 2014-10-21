@@ -510,6 +510,7 @@ def search(request):
                         'pub_date': pub_year,
                         'url': reverse('article detail', args=(result.pk,)),
                         'authors': authors_list,
+                        'source': result.get_formatted_source(),
                     })
 
             else:
