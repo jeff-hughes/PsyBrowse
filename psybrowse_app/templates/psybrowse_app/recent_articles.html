@@ -1,0 +1,33 @@
+{% extends 'psybrowse_app/template.html' %}
+{% load staticfiles %}
+
+{% block title %}PsyBrowse: An online self-publishing framework for science articles, materials, and data{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+    <section class="str-content indx-content">
+        <h2>Recently Indexed Articles:</h2>
+        <div class="indx-feed">
+            {% for result in articles %}
+                <div class="indx-result clearfix" style="border-bottom: 1px #ddd solid; padding-bottom: 15px">
+                    <div class="indx-resultInfo">
+                        <div style="font-size: 120%"><a href="{% url 'article detail' result.id %}">{{ result.title|escape }}</a></div>
+                        <span class="indx-resultYear">({{ result.pub_date }})</span>
+                        <span class="indx-resultAuthors">
+                            {% for author in result.authors %}<a href="{{ author.url }}">{{ author.name|escape }}</a>{{ author.separator|escape }}{% endfor %}
+                        </span>
+                        <div class="art-details">
+                            {% if result.article.journal %}<a href="{% url 'journal detail' result.article.journal.pk %}">{{ result.article.journal.title|escape }}</a>, {% if result.article.volume %}{{ result.article.volume|escape }}{% if result.article.issue %}({{ result.article.issue|escape }}){% endif %}{% if result.article.pages %}, {{ result.article.pages|escape }}{% endif %}.{% endif %} {% endif %}{% if result.article.doi %}<a href="http://doi.org/{{ result.article.doi }}" target="_blank">doi:{{ result.article.doi }}</a><br />{% endif %}
+                            {% if result.article.abstract %}
+                            {{ result.article.abstract }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div>No articles are available.</div>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock %}

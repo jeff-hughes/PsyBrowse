@@ -6,6 +6,11 @@ urlpatterns = patterns('',
     url(r'^$', views.index,
         name='index'),  # ex: /psybrowse/
 
+    url(r'^recent_articles/?$', views.recent_articles,
+        name='recent articles default'),  # ex: /psybrowse/recent_articles/
+    url(r'^recent_articles/(?P<num_articles>\d+)/?$', views.recent_articles,
+        name='recent articles'),  # ex: /psybrowse/recent_articles/100/
+
     # VIEW DETAIL:
     url(r'^article/(?P<article_id>\d+)/?$', views.article_detail,
         name='article detail'),  # ex: /psybrowse/article/5/

@@ -301,6 +301,33 @@ def index(request):
                             mimetype='application/json')
 
 
+def recent_articles(request, num_articles=100):
+    """
+    The recent_articles view displays a list of the 'num_articles' most recently
+    indexed articles.
+    """
+
+    articles = Article.objects.prefetch_related('authors').order_by(
+        '-id')[:num_articles]
+
+    articles_details = []
+    # Pull out relevant data for each Article
+    for article in articles:
+        article_dict = {
+            'article': article,
+            'id': article.pk,
+            'title': article.title,
+            'pub_date': article.pub_date.strftime('%b %Y'),
+            'url': reverse('article detail', args=(article.pk,)),
+            'authors': _format_authors_list(article.authors.all()),
+        }
+        articles_details.append(article_dict)
+
+    return render(request, 'psybrowse_app/recent_articles.html', {
+        'articles': articles_details
+    })
+
+
 def article_detail(request, article_id):
     """Display detailed information for the requested Article."""
     article = get_object_or_404(Article, pk=article_id)
