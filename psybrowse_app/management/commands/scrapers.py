@@ -104,7 +104,7 @@ class JPSP_Scraper(Scraper):
                     str(v),
                     str(i)
                 ))
-                results = BeautifulSoup(fetch.content, from_encoding='iso-8859-1'))
+                results = BeautifulSoup(fetch.content, from_encoding='iso-8859-1')
                     # Raw output, in BeautifulSoup format
 
                 self.results[(v, i)] = results  # Result saved with tuple representing volume and issue
