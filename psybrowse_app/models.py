@@ -129,7 +129,7 @@ class Article(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
-    source = models.CharField(max_length=2, choices=SOURCES, blank=True,
+    source = models.CharField(max_length=15, choices=SOURCES, blank=True,
                               null=True)
         # Database source from which Article information was pulled
     source_id = models.CharField(max_length=200, blank=True, null=True)
