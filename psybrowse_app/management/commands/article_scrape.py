@@ -13,6 +13,8 @@ from django.core.management.base import BaseCommand, CommandError
 from psybrowse_app.models import Article, Author, Journal
 import scrapers
 
+import whoosh
+
 class Command(BaseCommand):
     help = 'Populate the Article and Author database with new articles.'
     args = '<JPSP volume issue>'
@@ -130,8 +132,7 @@ class Command(BaseCommand):
                     # Open Whoosh index
 
             for result in scrape.get_results():
-                search_articles = Article.objects.filter(
-                    source_doi__exact=result['doi'])
+                search_articles = Article.objects.filter(doi__exact=result['doi'])
 
                 # Only create articles that don't already exist
                 if not search_articles:
