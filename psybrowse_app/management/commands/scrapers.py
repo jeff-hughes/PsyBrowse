@@ -113,11 +113,10 @@ class JPSP_Scraper(Scraper):
                 metadata = results.find(id='bwaArticlesZone').h2.text
                 match = JPSP_Scraper.META_RGX.search(metadata)
                 if match is not None:
-                    date = datetime.datetime(
+                    self.metadata[(v, i)]['date'] = datetime.datetime(
                         int(match.group(1)),
                         int(MONTHS[match.group(4)]),
                         1)
-                    self.metadata[(v, i)]['date'] = date.strftime('%Y-%m-%d')
                 else:
                     self.metadata[(v, i)]['date'] = None
 
@@ -139,7 +138,13 @@ class JPSP_Scraper(Scraper):
         title = result.find(class_='bwaazTitle').a.text.strip()
         link = JPSP_Scraper.BASE_URL.format(
             result.find(class_='bwaazTitle').a['href'].strip())
-        pages = result.find(class_='bwaazPages').text.strip()
+
+        pages_text = result.find(class_='bwaazPages').text.strip()
+        page_nums = re.search(r'([0-9]+-[0-9]+)', pages_text)
+        if page_nums is not None:
+            pages = page_nums.group(1)
+        else:
+            pages = None
 
         authors_text = unicode(result.find(class_='bwaazAuthor').text.strip())
         if authors_text == u'No authorship indicated':
