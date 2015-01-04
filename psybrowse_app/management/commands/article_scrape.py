@@ -27,7 +27,7 @@ class Command(BaseCommand):
         )
 
     SCRAPERS = {
-        'JPSP': 'JPSP_Scraper',
+        'JPSP': { 'name': 'JPSP_Scraper', 'source': Article.JPSP },
     }
 
     def _create_article(self, result, source):
@@ -120,37 +120,22 @@ class Command(BaseCommand):
             if args[0] not in Command.SCRAPERS:
                 raise CommandError('Invalid scraper selected.')
 
-            scraper_name = Command.SCRAPERS[args[0]]
-            scraper_class = getattr(scrapers, scraper_name)
-            if args[1] and args[2]:
-                scrape = scraper_class(args[1], args[2])
-            elif args[1]:
-                scrape = scraper_class(args[1])
-            else:
-                scrape = scraper_class()
+            scraper_type = Command.SCRAPERS[args[0]]
+            scraper_class = getattr(scrapers, scraper_type['name'])
 
-        """if (not options['initial'] or (options['initial'] and
-                                       Article.objects.count() == 0)):
-
-            if 'WHOOSH_DISABLED' in os.environ:
-                use_whoosh = False
-            else:
-                use_whoosh = True
-
-            pubmed_search = harvesters.PubMedHarvester('psychology', 100)
+            scrape = scraper_class(*args[1:3])
 
             if use_whoosh:
                 ix = whoosh.index.open_dir('psybrowse_app/article_index')
                     # Open Whoosh index
 
-            for result in pubmed_search.get_results():
+            for result in scrape.get_results():
                 search_articles = Article.objects.filter(
-                    source__exact=Article.PUBMED,
-                    source_id__exact=result['source_id'])
+                    source_doi__exact=result['doi'])
 
                 # Only create articles that don't already exist
                 if not search_articles:
-                    article = self._create_article(result, Article.PUBMED)
+                    article = self._create_article(result, scraper_type['source'])
 
                     if article:
                         if result['authors']:

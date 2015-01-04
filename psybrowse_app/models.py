@@ -89,16 +89,20 @@ class Article(models.Model):
     """
     # Sources
     PUBMED = 'PM'
+    JPSP = 'JPSP'
     SOURCES = (
         (PUBMED, 'PubMed'),
+        (JPSP, 'JPSP'),
     )
     URLS = {
         'PM': 'http://www.ncbi.nlm.nih.gov/pubmed/{:s}',
+        'JPSP': '',
     }  # It may be easier to store the URL directly in the database, but this
        # works for now
 
     SOURCE_DICT = {
         PUBMED: 'PubMed',
+        JPSP: 'JPSP'
     }
 
     # Types
