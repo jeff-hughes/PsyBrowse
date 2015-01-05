@@ -12,11 +12,13 @@ class AuthorAdmin(admin.ModelAdmin):
     fields = (('first_name', 'initials', 'last_name'),
               'flag_conflict',
               'flag_missing')
+    list_filter = ('flag_missing', 'flag_conflict', 'flag_non_ascii')
 
 class JournalAdmin(admin.ModelAdmin):
     actions_on_top = True
     actions_on_bottom = True
     search_fields = ['title']
+    list_filter = ('flag_missing', 'flag_conflict', 'flag_non_ascii')
 
 class PubDateListFilter(admin.SimpleListFilter):
     title = 'publication date'  # Human-readable title
@@ -51,93 +53,12 @@ class PubDateListFilter(admin.SimpleListFilter):
             return queryset.filter(pub_date__gte=date(2010, 1, 1),
                                     pub_date__lte=date(2019, 12, 31))
 
-class FlagMissingListFilter(admin.SimpleListFilter):
-    title = 'missing info'  # Human-readable title
-    parameter_name = 'flag_missing'  # Parameter for the filter that will be
-                                     # used in the URL query
-
-    def lookups(self, request, model_admin):
-        """
-        Return a list of tuples. The first element in each tuple is the coded
-        value for the option that will appear in the URL query. The second
-        element is the human-readable name for the option that will appear in
-        the right sidebar.
-        """
-        return (
-            (1, 'Yes'),
-            (0, 'No'),
-        )
-
-    def queryset(self, request, queryset):
-        """
-        Return the filtered queryset based on the value provided in the query
-        string and retrievable via self.value().
-        """
-        if self.value() == 1:
-            return queryset.filter(flag_missing=1)
-        if self.value() == 0:
-            return queryset.filter(flag_missing=0)
-
-class FlagConflictListFilter(admin.SimpleListFilter):
-    title = 'info conflict'  # Human-readable title
-    parameter_name = 'flag_conflict'  # Parameter for the filter that will be
-                                      # used in the URL query
-
-    def lookups(self, request, model_admin):
-        """
-        Return a list of tuples. The first element in each tuple is the coded
-        value for the option that will appear in the URL query. The second
-        element is the human-readable name for the option that will appear in
-        the right sidebar.
-        """
-        return (
-            (1, 'Yes'),
-            (0, 'No'),
-        )
-
-    def queryset(self, request, queryset):
-        """
-        Return the filtered queryset based on the value provided in the query
-        string and retrievable via self.value().
-        """
-        if self.value() == 1:
-            return queryset.filter(flag_conflict=1)
-        if self.value() == 0:
-            return queryset.filter(flag_conflict=0)
-
-class FlagNonASCIIListFilter(admin.SimpleListFilter):
-    title = 'foreign characters'  # Human-readable title
-    parameter_name = 'flag_non_ascii'  # Parameter for the filter that will be
-                                       # used in the URL query
-
-    def lookups(self, request, model_admin):
-        """
-        Return a list of tuples. The first element in each tuple is the coded
-        value for the option that will appear in the URL query. The second
-        element is the human-readable name for the option that will appear in
-        the right sidebar.
-        """
-        return (
-            (1, 'Yes'),
-            (0, 'No'),
-        )
-
-    def queryset(self, request, queryset):
-        """
-        Return the filtered queryset based on the value provided in the query
-        string and retrievable via self.value().
-        """
-        if self.value() == 1:
-            return queryset.filter(flag_non_ascii=1)
-        if self.value() == 0:
-            return queryset.filter(flag_non_ascii=0)
-
 class ArticleAdmin(admin.ModelAdmin):
     actions_on_top = True
     actions_on_bottom = True
     list_display = ('title', 'pub_date', 'get_authors_str')
-    list_filter = (PubDateListFilter, FlagMissingListFilter,
-        FlagConflictListFilter, FlagNonASCIIListFilter)
+    list_filter = (PubDateListFilter, 'flag_missing', 'flag_conflict',
+        'flag_non_ascii')
     search_fields = ['title', 'authors__first_name', 'authors__last_name']
     #raw_id_fields = ('journal',)
 
