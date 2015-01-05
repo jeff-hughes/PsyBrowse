@@ -26,6 +26,9 @@ class Author(models.Model):
     flag_missing = models.BooleanField(default=False)
         # This flag is used when an Author is missing important information.
         # For use with admin management.
+    flag_non_ascii = models.BooleanField(default=False)
+        # This flag is used when an Author name includes non-ASCII characters,
+        # to be checked to ensure the characters display properly.
 
     def __unicode__(self):
         return self.get_name()
@@ -72,6 +75,9 @@ class Journal(models.Model):
     flag_missing = models.BooleanField(default=False)
         # This flag is used when a Journal is missing important information. For
         # use with admin management.
+    flag_non_ascii = models.BooleanField(default=False)
+        # This flag is used when a Journal title includes non-ASCII characters,
+        # to be checked to ensure the characters display properly.
 
     def __unicode__(self):
         return self.title
@@ -173,6 +179,9 @@ class Article(models.Model):
     flag_missing = models.BooleanField(default=False)
         # This flag is used when an Article is missing important information.
         # For use with admin management.
+    flag_non_ascii = models.BooleanField(default=False)
+        # This flag is used when an Article title or abstract includes non-ASCII
+        # characters, to be checked to ensure the characters display properly.
 
     # Site stats
     view_count = models.PositiveIntegerField(default=0)
